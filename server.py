@@ -4,7 +4,10 @@ import tornado.options
 import sqlite3
 import logging
 import json
-import time
+from dotenv import load_dotenv
+
+
+
 
 
 class App(tornado.web.Application):
@@ -13,6 +16,7 @@ class App(tornado.web.Application):
         super().__init__(handlers, **kwargs)
 
         # Initialising db connection
+        self.load_env()
         self.db = sqlite3.connect("bazaar.db")
         self.db.row_factory = sqlite3.Row
         self.init_db()
@@ -24,24 +28,30 @@ class App(tornado.web.Application):
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS 'shop' ("
             + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name INTEGER NOT NULL,"
-            + "lat TEXT NOT NULL,"
-            + "lon INTEGER NOT NULL,"
+            + "name_uni TEXT NOT NULL,"
+            + "name_zawgyi TEXT NOT NULL,"
+            + "description TEXT,"
+            + "lat DECIMAL NOT NULL,"
+            + "lon DECIMAL NOT NULL,"
             + "menu_id INTEGER NOT NULL,"
-            + "address INTEGER NOT NULL,"
+            + "address TEXT NOT NULL,"
+            + "phone_number_1 TEXT NOT NULL,"
+            + "phone_number_2 TEXT NOT NULL,"
+            + "phone_number_3 TEXT NOT NULL,"
             + "township_id INTEGER NOT NULL,"
             + "region_id INTEGER NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
         )
 
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS 'region' ("
             + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name INTEGER NOT NULL,"
+            + "name_uni TEXT NOT NULL,"
+            + "name_zawgyi TEXT NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
 
 
@@ -50,30 +60,46 @@ class App(tornado.web.Application):
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS 'township' ("
             + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name INTEGER NOT NULL,"
+            + "name_uni TEXT NOT NULL,"
+            + "name_zawgyi TEXT NOT NULL,"
             + "region_id INTEGER NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,"
-            + "updated_at TIMESTAMP NOT NULL"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
         )
 
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS 'menu' ("
             + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name INTEGER NOT NULL,"
+            + "name_uni TEXT NOT NULL,"
+            + "name_zawgyi TEXT NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
 
         )
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS 'menu_item' ("
             + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name INTEGER NOT NULL,"
+            + "name_uni TEXT NOT NULL,"
+            + "name_zawgyi TEXT NOT NULL,"
             + "unit_price INTEGER NOT NULL,"
-            + "description INTEGER NOT NULL,"
+            + "description_uni TEXT NOT NULL,"
+            + "description_zawgyi TEXT NOT NULL,"
+            + "menu_category_id INTEGER NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            + ");"
+
+        )
+
+        cursor.execute(
+            "CREATE TABLE IF NOT EXISTS 'menu_category' ("
+            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
+            + "name_uni TEXT NOT NULL,"
+            + "name_zawgyi TEXT NOT NULL,"
+            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
 
         )
@@ -91,29 +117,32 @@ class App(tornado.web.Application):
             + "total_price DECIMAL NOT NULL,"
             + "address TEXT NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
         )
 
         cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'sender' ("
+            "CREATE TABLE IF NOT EXISTS 'user' ("
             + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
             + "sender_id INTEGER NOT NULL,"
             + "shop_id TEXT NOT NULL,"
-            + "menu_id INTEGER NOT NULL,"
-            + "menu_item_id INTEGER NOT NULL,"
+            + "menu_id INTEGER ,"
             + "contact_number TEXT NOT NULL,"
+            + "current_shop_page number NOT NULL DEFAULT 1,"
+            + "current_menu_page number NOT NULL DEFAULT 1,"
             + "address TEXT NOT NULL,"
-            + "quantity INTEGER NOT NULL,"
-            + "amount INTEGER NOT NULL,"
+            + "quantity INTEGER ,"
+            + "amount INTEGER ,"
+            + "isZawgyi BOOLEAN,"
             + "order_status TEXT NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL"
+            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP "
             + ");"
         )
-
         self.db.commit()
 
+    def load_env(self):
+        load_dotenv()
 
 class BaseHandler(tornado.web.RequestHandler):
     def write_json(self, obj, status_code=200):
@@ -124,20 +153,6 @@ class BaseHandler(tornado.web.RequestHandler):
 # /listings
 
 
-class MessengerHandler(BaseHandler):
-    @tornado.gen.coroutine
-    def get(self):
-
-        self.write_json({"result": True, "listings": []})
-
-    @tornado.gen.coroutine
-    def post(self):
-
-        self.write_json({"result": True, "listing": []})
-
-# /listings/ping
-
-
 class PingHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self):
@@ -145,9 +160,10 @@ class PingHandler(tornado.web.RequestHandler):
 
 
 def make_app(options):
+    from messenger.handler import MessengerHandler
     return App([
         (r"/app/ping", PingHandler),
-        (r"/app", MessengerHandler),
+        (r"/messenger", MessengerHandler),
     ], debug=options.debug)
 
 
@@ -157,7 +173,7 @@ if __name__ == "__main__":
     tornado.options.define("port", default=3000)
     # Specify whether the app should run in debug mode
     # Debug mode restarts the app automatically on file changes
-    tornado.options.define("debug", default=True)
+    tornado.options.define("debug", default=False)
 
     # Read settings/options from command line
     tornado.options.parse_command_line()
