@@ -25,7 +25,6 @@ class User:
             entity.get('current_shop_page'), entity.get('current_menu_page'))
 
         update_query += "WHERE {0}".format(condition)
-        print(update_query)
         try:
             cursor.execute(
                 update_query
