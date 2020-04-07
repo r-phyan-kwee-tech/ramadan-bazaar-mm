@@ -282,9 +282,10 @@ class ShopSelectionUseCase:
             },
             "buttons": [
                 {
-                    "type": "postback",
+                    "type": "web_url",
+                    "url": "https://msglocation.github.io",
                     "title": Rabbit.uni2zg("ဘာရလဲကြည့်မယ်") if is_zawgyi else "ဘာရလဲကြည့်မယ်",
-                    "payload": self.VIEW_SHOP
+
                 },
                 {
                     "type": "postback",
