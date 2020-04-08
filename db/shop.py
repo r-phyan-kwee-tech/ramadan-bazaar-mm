@@ -58,5 +58,32 @@ class Shop:
 
             return []
 
+    def query_select(self, query,condition,page_num,page_size):
+            cursor = self.db.cursor()
+            select_query = query
+            try:
+                if condition is not None:
+                    select_query += condition
+                # Order by and pagination
+                limit = page_size
+                offset = (page_num - 1) * page_size
+                select_query += " ORDER BY shop_id ASC LIMIT ? OFFSET ?"
+
+                args = (limit, offset)
+
+                results=cursor.execute(select_query,args)
+                field_names = [i[0] for i in cursor.description]
+                shops = []
+                for row in results:
+                    fields = field_names
+                    shop = {
+                        field: row[field] for field in fields
+                    }
+                    shops.append(shop)
+                return shops
+            except Exception as e:
+                print(e)
+
+                return []
 
 
