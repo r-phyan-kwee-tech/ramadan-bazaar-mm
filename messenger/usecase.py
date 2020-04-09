@@ -132,7 +132,7 @@ class FontSelectionUseCase:
             },
             {
                 "content_type": "text",
-                "title": Rabbit.uni2zg("တည်နေရာရွေးရန်") if is_zawgyi else "တည်နေရာရွေးရန်",
+                "title": Rabbit.uni2zg("အနီးနားမှာရှာမယ်") if is_zawgyi else "အနီးနားမှာရှာမယ်",
                 "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
                 "payload": self.SELECT_LOCATION_PAYLOAD
             },
