@@ -138,6 +138,8 @@ class App(tornado.web.Application):
             + "current_menu_page number NOT NULL DEFAULT 1,"
             + "address TEXT NOT NULL,"
             + "quantity INTEGER ,"
+            + "lat DECIMAL,"
+            + "lon DECIMAL,"
             + "amount INTEGER ,"
             + "isZawgyi BOOLEAN,"
             + "order_status TEXT NOT NULL,"
@@ -257,6 +259,8 @@ class App(tornado.web.Application):
             + "current_shop_page INTEGER NOT NULL DEFAULT 1,"
             + "current_menu_page INTEGER NOT NULL DEFAULT 1,"
             + "address TEXT NOT NULL,"
+            + "lat DECIMAL,"
+            + "lon DECIMAL,"
             + "quantity INTEGER ,"
             + "amount INTEGER ,"
             + "iszawgyi BOOLEAN,"
@@ -272,6 +276,12 @@ class App(tornado.web.Application):
 
 
 class BaseHandler(tornado.web.RequestHandler):
+    def set_default_headers(self):
+
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+
     def write_json(self, obj, status_code=200):
         self.set_header("Content-Type", "application/json")
         self.set_status(status_code)

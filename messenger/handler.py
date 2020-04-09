@@ -19,12 +19,13 @@ class MessengerHandler(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
+
         bot = MessengerBot(os.environ['VERIFY_TOKEN'])
 
         output = json.loads(self.request.body)
         messenger_uc = MessengerUseCase(output, bot, self.application.db)
         messenger_uc.handle_message()
-
+        self.set_default_headers()
         self.write_json({"result": True, "listing": []})
 
 # /listings/ping

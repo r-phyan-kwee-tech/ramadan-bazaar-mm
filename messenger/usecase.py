@@ -13,7 +13,9 @@ class MessengerUseCase:
         self.db = db
         self.user = User(db)
         self.shop = Shop(db)
-
+        self.page_id = ''
+        self.page_sender_id = ''
+        self.page_recipient_id = ''
         self.recipient_id = ''
         self.quick_reply_payload = ''
 
@@ -24,6 +26,9 @@ class MessengerUseCase:
             messaging = event['messaging']
             for message in messaging:
                 self.recipient_id = message['sender']['id']
+                self.page_id = event.get("id")
+                self.page_sender_id = self.recipient_id
+                self.page_recipient_id = message['recipient']['id']
                 if message.get('message'):
 
                     bot.send_typing_on(self.recipient_id)
@@ -34,7 +39,9 @@ class MessengerUseCase:
                     if message['message'].get('quick_reply'):
                         self.quick_reply_payload = message['message'].get('quick_reply').get('payload')
                         self.handle_quick_replies()
-
+                    if message["message"].get("attachments"):
+                        response_sent_text = "This is location payload"
+                        bot.send_message(self.recipient_id, response_sent_text)
                 if message.get("postback"):
                     initial_greetingb_bot = InitialConversationUseCase(self.recipient_id, bot)
                     if message["postback"]["payload"] == "GET_STARTED_PAYLOAD":
@@ -53,7 +60,7 @@ class MessengerUseCase:
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
-            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot)
+            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot,self.page_id,self.page_recipient_id)
             fontselection_bot.handle_user_font_selection(self.quick_reply_payload)
             shop_selection_bot = ShopSelectionUseCase(self.recipient_id, self.shop, self.user, current_user, bot)
             shop_selection_bot.handle_shops_quick_reply(self.quick_reply_payload)
@@ -63,7 +70,7 @@ class MessengerUseCase:
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
-            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot)
+            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot,self.page_id,self.page_recipient_id)
             fontselection_bot.handle_user_font_selection(self.quick_reply_payload)
             shop_selection_bot = ShopSelectionUseCase(self.recipient_id, self.shop, self.user, current_user, bot)
             shop_selection_bot.handle_shops_quick_reply(self.quick_reply_payload)
@@ -71,11 +78,15 @@ class MessengerUseCase:
 
 class FontSelectionUseCase:
 
-    def __init__(self, sender_id, user, current_user, bot):
+    def __init__(self, sender_id, user, current_user, bot, page_id, recipient_id):
         self.sender_id = sender_id
         self.bot = bot
         self.user = user
         self.current_user = current_user
+
+        self.page_id = page_id
+        self.page_recipient_id = recipient_id
+
         self.is_zawgyi = current_user.get('iszawgyi')
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
         self.ZAW_GYI_PAYLOAD = "ZAW_GYI_PAYLOAD"
@@ -85,10 +96,12 @@ class FontSelectionUseCase:
         self.BROWSE_SHOPS = "BROWSE_SHOPS"
         self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
+        self.NO_LOCATION_PAYLOAD = "NO_LOCATION_PAYLOAD"
 
         self.quick_reply_payload = ''
         self.EVENT_FONT_CHANGE = "အောက်မှာ မြင်ရတဲ့ စာသားလေးကိုနှိပ်ပြီး Font ရွေးပေးပါရှင်။"
         self.after_font_selection = "ကောင်းပါပြီ ဒါဆို အောက်က menuလေးတွေကို နှိပ်ပြီးကြည့်လို့ရပါပြီခင်ဗျာ။"
+        self.no_location_response = "ဟုတ်ပြီ ဒါဆိုရင် တော့ ဒီတိုင်းပဲရှာဖို့ အောက်က ခလုပ်လေးတွေကိုနှိပ်လိုက်ပါခင်ဗျာ။"
 
     def send_font_selection(self):
         is_zawgyi = False
@@ -113,6 +126,16 @@ class FontSelectionUseCase:
             self.is_zawgyi = False
             self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
             self.bot.send_quick_reply(self.sender_id, self.after_font_selection,
+                                      self._after_font_selection_payload(self.is_zawgyi),
+                                      self.is_zawgyi)
+
+        if self.quick_reply_payload == self.SELECT_LOCATION_PAYLOAD:
+            self.bot.send_location_reply(self.sender_id,
+                                         "အနီးမှာရှာဖို့ Location access ပေးဖို့လို့ပါတယ်။အကယ်လို့ Location ကိုတောင်းတဲ့ စာလေးပေါ်လာရင် Allow ကိုနှိပ်လိုက်ပါ။",
+                                         self.is_zawgyi,self.page_id,self.page_recipient_id)
+
+        if self.quick_reply_payload == self.NO_LOCATION_PAYLOAD:
+            self.bot.send_quick_reply(self.sender_id, self.no_location_response,
                                       self._after_font_selection_payload(self.is_zawgyi),
                                       self.is_zawgyi)
 

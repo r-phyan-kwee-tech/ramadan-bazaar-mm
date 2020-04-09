@@ -80,24 +80,4 @@ class User:
 
             return []
 
-    #
-    # def select(self, condition):
-    #     cursor = self.db.cursor()
-    #     select_query = "SELECT * FROM user "
-    #     try:
-    #         if condition is not None:
-    #             select_query += condition
-    #         results = cursor.execute(select_query)
-    #
-    #         field_names = [i[0] for i in cursor.description]
-    #         users = []
-    #         for row in results:
-    #             fields = field_names
-    #             user = {
-    #                 field: row[field] for field in fields
-    #             }
-    #             users.append(user)
-    #         return users
-    #     except Exception as e:
-    #         print(e)
-    #         return []
+
