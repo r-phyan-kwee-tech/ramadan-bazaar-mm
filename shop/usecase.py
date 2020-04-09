@@ -13,4 +13,5 @@ class ShopUseCase:
                 "menu_category_name from menu_item as MI INNER JOIN menu_category as MC on MI.menu_category_id=MC.id " \
                 "INNER JOIN shop as SH on SH.menu_id=MI.menu_id "
         where_condition = " WHERE SH.id={0}".format(self.shop_id)
-        return self.shop.query_select(query,where_condition, 1, 100)
+        order_by="ORDER BY shop_id ASC"
+        return self.shop.query_select(query,where_condition,order_by, 1, 100)

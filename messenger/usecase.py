@@ -1,3 +1,5 @@
+import decimal
+
 from db.shop import Shop
 from db.user import User
 from rabbit import Rabbit
@@ -16,6 +18,9 @@ class MessengerUseCase:
         self.page_id = ''
         self.page_sender_id = ''
         self.page_recipient_id = ''
+        self.recipient_reaction = None
+        self.latitude = 0.0
+        self.longitude = 0.0
         self.recipient_id = ''
         self.quick_reply_payload = ''
 
@@ -29,6 +34,7 @@ class MessengerUseCase:
                 self.page_id = event.get("id")
                 self.page_sender_id = self.recipient_id
                 self.page_recipient_id = message['recipient']['id']
+
                 if message.get('message'):
 
                     bot.send_typing_on(self.recipient_id)
@@ -40,8 +46,18 @@ class MessengerUseCase:
                         self.quick_reply_payload = message['message'].get('quick_reply').get('payload')
                         self.handle_quick_replies()
                     if message["message"].get("attachments"):
-                        response_sent_text = "This is location payload"
-                        bot.send_message(self.recipient_id, response_sent_text)
+                        if message["message"].get("attachments")[0].get("type") == 'location':
+                            self.latitude = message["message"]["attachments"][0]["payload"]["coordinates"][
+                                "lat"]
+                            self.longitude = message["message"]["attachments"][0]["payload"]["coordinates"][
+                                "long"]
+                            self.handle_attachment()
+                        else:
+                            response_sent_text = "Oops I think I am not good enough to handle this request thousand apologies."
+                            bot.send_message(self.recipient_id, response_sent_text)
+                if message.get("reaction"):
+                    self.recipient_reaction = message.get("reaction").get("reaction")
+                    self.handle_reaction()
                 if message.get("postback"):
                     initial_greetingb_bot = InitialConversationUseCase(self.recipient_id, bot)
                     if message["postback"]["payload"] == "GET_STARTED_PAYLOAD":
@@ -54,13 +70,37 @@ class MessengerUseCase:
                         self.handle_postback()
                 bot.send_typing_off(self.recipient_id)
 
+    def handle_reaction(self):
+        bot = self.responder
+        users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is not 0:
+            current_user = users[0]
+            reaction_bot = ReactionResponseUseCase(self.recipient_id, self.recipient_reaction, current_user, bot)
+            reaction_bot.handle_reaction()
+
+    def handle_attachment(self):
+        bot = self.responder
+        users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is not 0:
+            current_user = users[0]
+            current_user['lat'] = self.latitude
+            current_user['lon'] = self.longitude
+            self.user.update(current_user, " public.user.sender_id = {0}".format(self.recipient_id))
+            updated_users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+            current_user = updated_users[0]
+            location_selection_bot = LocationBaseShopSelectionUseCase(self.recipient_id, self.shop, self.user,
+                                                                      current_user, bot)
+            location_selection_bot.handle_initial_location_reply()
+        pass
+
     def handle_quick_replies(self):
 
         bot = self.responder
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
-            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot,self.page_id,self.page_recipient_id)
+            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot, self.page_id,
+                                                     self.page_recipient_id)
             fontselection_bot.handle_user_font_selection(self.quick_reply_payload)
             shop_selection_bot = ShopSelectionUseCase(self.recipient_id, self.shop, self.user, current_user, bot)
             shop_selection_bot.handle_shops_quick_reply(self.quick_reply_payload)
@@ -70,10 +110,175 @@ class MessengerUseCase:
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
-            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot,self.page_id,self.page_recipient_id)
+            fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot, self.page_id,
+                                                     self.page_recipient_id)
             fontselection_bot.handle_user_font_selection(self.quick_reply_payload)
             shop_selection_bot = ShopSelectionUseCase(self.recipient_id, self.shop, self.user, current_user, bot)
             shop_selection_bot.handle_shops_quick_reply(self.quick_reply_payload)
+            location_selection_bot = LocationBaseShopSelectionUseCase(self.recipient_id, self.shop, self.user,
+                                                                      current_user, bot)
+            location_selection_bot.handle_location_base_reply(self.quick_reply_payload)
+
+
+class ReactionResponseUseCase:
+    def __init__(self, sender_id, reaction, current_user, bot):
+        self.sender_id = sender_id
+        self.bot = bot
+        self.reaction = reaction
+        self.current_user = current_user
+        self.is_zawgyi = current_user.get("iszawgyi")
+
+    def handle_reaction(self):
+
+        if self.reaction == 'wow':
+            self.bot.send_message(self.sender_id,"တကယ်အံသြ တယ်ဆိုရင် ကျေးဇူးတင်ပါတယ်ဗျာ။", self.is_zawgyi)
+        if self.reaction == 'like':
+            self.bot.send_message(self.sender_id,"တကယ်ကြိုက်တယ်ဆိုတာသိရတော့လည်း ပျော်တာပေါ့", self.is_zawgyi)
+        if self.reaction == 'love':
+            self.bot.send_message(self.sender_id,"အသဲလေးတွေပေးတယ်ဆိုတော့ ကြွေတာပေါ့", self.is_zawgyi)
+        if self.reaction == 'angry':
+            self.bot.send_message(self.sender_id,"ဘာများအဆင်မပြေတာရှိလို့ လဲ ဗျာ ကျနော့် ကိုပြောပါအုန်းဗျ။", self.is_zawgyi)
+        if self.reaction == 'sad':
+            self.bot.send_message(self.sender_id,"ဝမ်းမနည်းပါနဲ့ဗျာ အဆင်မပြေတာတွေ အဆင်ပြေသွားမှာပါဗျာ။", self.is_zawgyi)
+        if self.reaction == 'other':
+            self.bot.send_message(self.sender_id,"react လေးတွေလာပေးတယ်ပေါ့", self.is_zawgyi)
+
+
+
+class LocationBaseShopSelectionUseCase:
+    def __init__(self, sender_id, shop, user, current_user, bot):
+        self.sender_id = sender_id
+        self.bot = bot
+        self.shop = shop
+        self.page_num = current_user.get('current_shop_page')
+        self.page_size = 10
+        self.user = user
+        self.current_user = current_user
+        self.latitude = current_user.get("lat")
+        self.longitude = current_user.get("lon")
+
+        self.is_zawgyi = current_user.get('iszawgyi')
+        self.SELECT_LOCATION_PAYLOAD = "SELECT_LOCATION_PAYLOAD"
+        self.BROWSE_LOCATION_SHOPS = "BROWSE_LOCATION_SHOPS"
+        self.BROWSE_SHOPS = "BROWSE_SHOPS"
+        self.NEXT_LOCATION_SHOPS = "NEXT_LOCATION_SHOPS"
+        self.VIEW_LOCATION_SHOP = "VIEW_LOCATION_SHOP"
+        self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
+        self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
+        self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
+        self.EXIT_SHOPS = "EXIT_SHOPS"
+
+        self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
+        self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း "
+        self.no_shops_found = "🤔🤔🤔🤔တောင်းပန်ပါတယ်ခင်ဗျာ မိတ်ဆွေနေတဲ့ နေရာတဝိုက်မှာ ရှိတဲ့ ဆိုင်ကို မတွေ့လို့ပါ။နောက်တခေါက်ပြန်ကြည့်ဖို့ အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း"
+
+    def handle_initial_location_reply(self):
+        self.current_user["current_shop_page"] = 1
+        self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
+        shops = self._query_location_based_shops(self.page_num, self.page_size)
+        if len(shops) is not 0:
+            self.bot.send_generic_reply(self.sender_id, self._generate_shops(shops, self.is_zawgyi), self.is_zawgyi)
+
+    def handle_location_base_reply(self, payload):
+        if payload == self.NEXT_LOCATION_SHOPS:
+            self.page_num = int(self.current_user.get('current_shop_page')) + 1
+
+            shops = self._query_location_based_shops(self.page_num, self.page_size)
+            self.current_user["current_shop_page"] = self.page_num
+            self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
+            if len(shops) is not 0:
+
+                self.bot.send_generic_reply(self.sender_id, self._generate_shops(shops, self.is_zawgyi), self.is_zawgyi)
+            else:
+
+                self.current_user["current_shop_page"] = 1
+                self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
+
+                self.bot.send_quick_reply(self.sender_id, self.browse_shops_end,
+                                          self._after_shop_selection_exit(self.is_zawgyi),
+                                          self.is_zawgyi)
+
+    def _query_location_based_shops(self, page_num, page_size):
+        query = "SELECT * FROM ( SELECT " \
+                "id, name_uni, address, lat, lon, (" \
+                "3959 * acos ( cos ( radians({0}) ) * cos( radians( lat ) ) * cos( radians( lon ) - radians({1}) )" \
+                "+ sin ( radians({2}) ) * sin( radians( lat ) ) )" \
+                ") AS distance FROM public.shop )sub".format(decimal.Decimal(self.latitude),
+                                                             decimal.Decimal(self.longitude),
+                                                             decimal.Decimal(self.latitude))
+        print(query)
+        where_condition = " WHERE distance<={0}".format(3)
+        order_by = " ORDER BY distance ASC "
+        return self.shop.query_select(query, where_condition, order_by, int(page_num), int(page_size))
+
+    def _after_shop_selection_exit(self, is_zawgyi):
+        is_zawgyi = str2bool(is_zawgyi)
+        return [
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ်") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
+                "payload": self.BROWSE_SHOPS
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ဘာစားစရာရလဲကြည့်မယ်") if is_zawgyi else "ဘာစားစရာရလဲကြည့်မယ်",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "payload": self.AVAILABLE_MENUS
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အနီးနားမှာရှာမယ်") if is_zawgyi else "အနီးနားမှာရှာမယ်",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_location.png",
+                "payload": self.SELECT_LOCATION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ကျွန်တော်တို့အကြောင်း") if is_zawgyi else "ကျွန်တော်တို့အကြောင်း",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_info.png",
+                "payload": self.ABOUT_US_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "payload": self.FONT_SELECTION_PAYLOAD
+            }
+
+        ]
+
+    def _generate_shops(self, shops, is_zawgyi):
+        is_zawgyi = str2bool(is_zawgyi)
+
+        return [{
+            "title": Rabbit.uni2zg(str(shop.get("name_uni"))) if is_zawgyi else str(shop.get("name_uni")),
+            "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
+            "subtitle": Rabbit.uni2zg(str(shop.get("description"))) if is_zawgyi else shop.get("description"),
+            "default_action": {
+                "type": "web_url",
+                "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                "webview_height_ratio": "compact",
+            },
+            "buttons": [
+                {
+                    "type": "web_url",
+                    "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                    "title": Rabbit.uni2zg("Menu ကြည့်မယ်") if is_zawgyi else "Menu ကြည့်မယ်",
+
+                },
+                {
+                    "type": "postback",
+                    "title": Rabbit.uni2zg(
+                        "အနီးကဆိုင်တွေကြည့်မယ်") if is_zawgyi else "အနီးကဆိုင်တွေကြည့်မယ်",
+                    "payload": self.NEXT_LOCATION_SHOPS
+                },
+                {
+                    "type": "postback",
+                    "title": Rabbit.uni2zg("မကြည့်တော့ဘူး") if is_zawgyi else "မကြည့်တော့ဘူး",
+                    "payload": self.EXIT_SHOPS
+                }
+            ]
+        } for shop in shops]
 
 
 class FontSelectionUseCase:
@@ -99,7 +304,7 @@ class FontSelectionUseCase:
         self.NO_LOCATION_PAYLOAD = "NO_LOCATION_PAYLOAD"
 
         self.quick_reply_payload = ''
-        self.EVENT_FONT_CHANGE = "အောက်မှာ မြင်ရတဲ့ စာသားလေးကိုနှိပ်ပြီး Font ရွေးပေးပါရှင်။"
+        self.EVENT_FONT_CHANGE = "အောက်မှာ မြင်ရတဲ့ စာသားလေးကိုနှိပ်ပြီး Font ရွေးပေးပါခင်ဗျာ။"
         self.after_font_selection = "ကောင်းပါပြီ ဒါဆို အောက်က menuလေးတွေကို နှိပ်ပြီးကြည့်လို့ရပါပြီခင်ဗျာ။"
         self.no_location_response = "ဟုတ်ပြီ ဒါဆိုရင် တော့ ဒီတိုင်းပဲရှာဖို့ အောက်က ခလုပ်လေးတွေကိုနှိပ်လိုက်ပါခင်ဗျာ။"
 
@@ -131,8 +336,8 @@ class FontSelectionUseCase:
 
         if self.quick_reply_payload == self.SELECT_LOCATION_PAYLOAD:
             self.bot.send_location_reply(self.sender_id,
-                                         "အနီးမှာရှာဖို့ Location access ပေးဖို့လို့ပါတယ်။အကယ်လို့ Location ကိုတောင်းတဲ့ စာလေးပေါ်လာရင် Allow ကိုနှိပ်လိုက်ပါ။",
-                                         self.is_zawgyi,self.page_id,self.page_recipient_id)
+                                         "အနီးမှာရှိတဲ့ဆိုင်တွေရှာဖို့ Location access ပေးဖို့လို့ပါတယ်။အကယ်လို့ Location ကိုတောင်းတဲ့ စာလေးပေါ်လာရင် Allow ကိုနှိပ်လိုက်ပါ။",
+                                         self.is_zawgyi, self.page_id, self.page_recipient_id)
 
         if self.quick_reply_payload == self.NO_LOCATION_PAYLOAD:
             self.bot.send_quick_reply(self.sender_id, self.no_location_response,
@@ -140,6 +345,7 @@ class FontSelectionUseCase:
                                       self.is_zawgyi)
 
     def _after_font_selection_payload(self, is_zawgyi):
+        is_zawgyi = str2bool(is_zawgyi)
         return [
             {
                 "content_type": "text",
@@ -212,7 +418,7 @@ class ShopSelectionUseCase:
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
         self.EXIT_SHOPS = "EXIT_SHOPS"
         self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
-        self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့ အောက်က ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
+        self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း "
 
     def handle_shops_quick_reply(self, payload):
         if payload == self.BROWSE_SHOPS:
@@ -300,14 +506,14 @@ class ShopSelectionUseCase:
             "subtitle": Rabbit.uni2zg(str(shop.get("description"))) if is_zawgyi else shop.get("description"),
             "default_action": {
                 "type": "web_url",
-                "url": "https://msglocation.github.io",
-                "webview_height_ratio": "tall",
+                "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                "webview_height_ratio": "compact",
             },
             "buttons": [
                 {
                     "type": "web_url",
-                    "url": "https://msglocation.github.io",
-                    "title": Rabbit.uni2zg("ဘာရလဲကြည့်မယ်") if is_zawgyi else "ဘာရလဲကြည့်မယ်",
+                    "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                    "title": Rabbit.uni2zg("Menu ကြည့်မယ်") if is_zawgyi else "Menu ကြည့်မယ်",
 
                 },
                 {

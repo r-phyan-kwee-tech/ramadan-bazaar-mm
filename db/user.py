@@ -27,11 +27,11 @@ class User:
         cursor = self.db.cursor()
         update_query = "UPDATE public.user SET sender_id = '{0}', shop_id= '{1}' ,menu_id= '{2}',contact_number= '{3}',address= '{4}' " \
                        ",quantity= '{5}', amount= '{6}' , order_status = '{7}' ,iszawgyi='{8}' , current_shop_page = '{9}' , " \
-                       "current_menu_page = '{10}' ".format(
+                       "current_menu_page = '{10}', lat = '{11}', lon='{12}' ".format(
             entity.get("sender_id"), entity.get("shop_id"), entity.get("menu_id"), entity.get("contact_number"),
             entity.get("address"), entity.get("quantity"),
             entity.get("amount"), entity.get("order_status"), entity.get("iszawgyi"),
-            entity.get('current_shop_page'), entity.get('current_menu_page'))
+            entity.get('current_shop_page'), entity.get('current_menu_page'), entity.get('lat'), entity.get('lon'))
 
         update_query += "WHERE {0}".format(condition)
         try:
@@ -79,5 +79,3 @@ class User:
             print(e)
 
             return []
-
-

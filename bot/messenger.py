@@ -17,7 +17,8 @@ class MessengerBot:
         # Initialising page token
         self.page_token = verify_token
 
-    def send_message(self, recipient_id, message_text):
+    def send_message(self, recipient_id, message_text, is_zawgyi=False):
+        is_zawgyi = str2bool(is_zawgyi)
         params = {
             "access_token": self.page_token
         }
@@ -29,7 +30,7 @@ class MessengerBot:
                 "id": recipient_id
             },
             "message": {
-                "text": message_text
+                "text": Rabbit.uni2zg(message_text) if is_zawgyi else message_text,
             }
         })
         url = url_concat("https://graph.facebook.com/v6.0/me/messages", params)
@@ -192,7 +193,7 @@ class MessengerBot:
                                 "type": "web_url",
                                 "title": Rabbit.uni2zg(
                                     "လက်ရှိနေရာ ပို့ပေးမယ်") if is_zawgyi else "လက်ရှိနေရာ ပို့ပေးမယ်",
-                                "url": "https://msglocation.github.io/?verification_token=" + str(
+                                "url": "http://localhost:8000/?verification_token=" + str(
                                     jwt.encode(
                                         {"recepient_id": recipient_id, "post_back_url": os.getenv("MSG_POST_BACK_URL"),
                                          "page_id": page_id, "page_recipient_id": page_recipient_id},

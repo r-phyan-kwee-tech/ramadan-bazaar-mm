@@ -76,7 +76,7 @@ class Shop:
 
             return []
 
-    def query_select(self, query, condition, page_num, page_size):
+    def query_select(self, query, condition, ordered_by, page_num, page_size):
         cursor = self.db.cursor()
 
         select_query = query
@@ -86,7 +86,9 @@ class Shop:
             # Order by and pagination
             limit = page_size
             offset = (page_num - 1) * page_size
-            offset_query = " ORDER BY shop_id ASC LIMIT {0} OFFSET {1} ".format(limit, offset)
+            if ordered_by is not None:
+                select_query += ordered_by
+            offset_query = " LIMIT {0} OFFSET {1} ".format(limit, offset)
             select_query += offset_query
 
             if not os.getenv("ENV") == 'production':
