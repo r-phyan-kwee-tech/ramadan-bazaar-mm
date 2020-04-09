@@ -120,8 +120,8 @@ class FontSelectionUseCase:
         return [
             {
                 "content_type": "text",
-                "title": Rabbit.uni2zg("ဝါဖြေပွဲ ကြည့်ရန်") if is_zawgyi else "ဝါဖြေပွဲ ကြည့်ရန်",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_zawgyi.png",
+                "title": Rabbit.uni2zg("ဝါဖြေပွဲဆိုင်တွေ ကြည့်မယ်") if is_zawgyi else "ဝါဖြေပွဲဆိုင်တွေ ကြည့်မယ်",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
                 "payload": self.BROWSE_SHOPS
             },
             {
@@ -133,13 +133,13 @@ class FontSelectionUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("အနီးနားမှာရှာမယ်") if is_zawgyi else "အနီးနားမှာရှာမယ်",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_location.png",
                 "payload": self.SELECT_LOCATION_PAYLOAD
             },
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("ကျွန်တော်တို့အကြောင်း") if is_zawgyi else "ကျွန်တော်တို့အကြောင်း",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_info.png",
                 "payload": self.ABOUT_US_PAYLOAD
             },
             {
@@ -238,7 +238,7 @@ class ShopSelectionUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("ဝါဖြေပွဲ ကြည့်ရန်") if is_zawgyi else "ဝါဖြေပွဲ ကြည့်ရန်",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_zawgyi.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
                 "payload": self.BROWSE_SHOPS
             },
             {
@@ -250,13 +250,13 @@ class ShopSelectionUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("တည်နေရာရွေးရန်") if is_zawgyi else "တည်နေရာရွေးရန်",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_location.png",
                 "payload": self.SELECT_LOCATION_PAYLOAD
             },
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("ကျွန်တော်တို့အကြောင်း") if is_zawgyi else "ကျွန်တော်တို့အကြောင်း",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_info.png",
                 "payload": self.ABOUT_US_PAYLOAD
             },
             {
