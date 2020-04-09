@@ -39,7 +39,7 @@ class MessengerUseCase:
                     initial_greetingb_bot = InitialConversationUseCase(self.recipient_id, bot)
                     if message["postback"]["payload"] == "GET_STARTED_PAYLOAD":
                         initial_greetingb_bot.send_initial_greeting()
-                        users = self.user.select("WHERE sender_id = {0}".format(self.recipient_id))
+                        users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
                         if len(users) is 0:
                             self.user.insert({"sender_id": self.recipient_id})
                     else:
@@ -50,7 +50,7 @@ class MessengerUseCase:
     def handle_quick_replies(self):
 
         bot = self.responder
-        users = self.user.select("WHERE sender_id = {0}".format(self.recipient_id))
+        users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
             fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot)
@@ -60,7 +60,7 @@ class MessengerUseCase:
 
     def handle_postback(self):
         bot = self.responder
-        users = self.user.select("WHERE sender_id = {0}".format(self.recipient_id))
+        users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
             fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot)
@@ -76,14 +76,14 @@ class FontSelectionUseCase:
         self.bot = bot
         self.user = user
         self.current_user = current_user
-        self.is_zawgyi = current_user.get('isZawgyi')
+        self.is_zawgyi = current_user.get('iszawgyi')
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
         self.ZAW_GYI_PAYLOAD = "ZAW_GYI_PAYLOAD"
         self.UNICODE_PAYLOAD = "UNICODE_PAYLOAD"
         self.current_user = current_user
         self.SELECT_LOCATION_PAYLOAD = "SELECT_LOCATION_PAYLOAD"
         self.BROWSE_SHOPS = "BROWSE_SHOPS"
-        self.AVAILABLE_MENUS="AVAILABLE_MENUS"
+        self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
 
         self.quick_reply_payload = ''
@@ -101,7 +101,7 @@ class FontSelectionUseCase:
                                       self.is_zawgyi)
 
         if self.quick_reply_payload == self.ZAW_GYI_PAYLOAD:
-            self.current_user["isZawgyi"] = True
+            self.current_user["iszawgyi"] = True
             self.is_zawgyi = True
             self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
             self.bot.send_quick_reply(self.sender_id, self.after_font_selection,
@@ -109,7 +109,7 @@ class FontSelectionUseCase:
                                       self.is_zawgyi)
 
         if self.quick_reply_payload == self.UNICODE_PAYLOAD:
-            self.current_user["isZawgyi"] = False
+            self.current_user["iszawgyi"] = False
             self.is_zawgyi = False
             self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
             self.bot.send_quick_reply(self.sender_id, self.after_font_selection,
@@ -179,12 +179,12 @@ class ShopSelectionUseCase:
         self.user = user
         self.current_user = current_user
 
-        self.is_zawgyi = current_user.get('isZawgyi')
+        self.is_zawgyi = current_user.get('iszawgyi')
         self.SELECT_LOCATION_PAYLOAD = "SELECT_LOCATION_PAYLOAD"
         self.BROWSE_SHOPS = "BROWSE_SHOPS"
         self.NEXT_SHOPS = "NEXT_SHOPS"
-        self.VIEW_SHOP="VIEW_SHOP"
-        self.AVAILABLE_MENUS="AVAILABLE_MENUS"
+        self.VIEW_SHOP = "VIEW_SHOP"
+        self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
         self.EXIT_SHOPS = "EXIT_SHOPS"
@@ -208,7 +208,7 @@ class ShopSelectionUseCase:
 
         if payload == self.NEXT_SHOPS:
 
-            self.page_num = self.current_user.get('current_shop_page') + 1
+            self.page_num = int(self.current_user.get('current_shop_page')) + 1
 
             shops = self.shop.select(None, self.page_num, self.page_size)
             self.current_user["current_shop_page"] = self.page_num

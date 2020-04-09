@@ -23,7 +23,8 @@ class App(tornado.web.Application):
             self.init_db()
         else:
 
-            self.db = psycopg2.connect(os.getenv("DATABASE_URL","postgres://postgres:postgres@localhost:5432/db_ramadan_bazar"))
+            self.db = psycopg2.connect(
+                os.getenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/db_ramadan_bazar"))
             self.init_pg_db()
 
     def init_db(self):
@@ -249,7 +250,7 @@ class App(tornado.web.Application):
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS public.user ( "
             + "ID SERIAL PRIMARY KEY,"
-            + "sender_id INTEGER NOT NULL,"
+            + "sender_id bigint NOT NULL,"
             + "shop_id TEXT NOT NULL,"
             + "menu_id INTEGER ,"
             + "contact_number TEXT NOT NULL,"
@@ -258,7 +259,7 @@ class App(tornado.web.Application):
             + "address TEXT NOT NULL,"
             + "quantity INTEGER ,"
             + "amount INTEGER ,"
-            + "isZawgyi BOOLEAN,"
+            + "iszawgyi BOOLEAN,"
             + "order_status TEXT NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP "

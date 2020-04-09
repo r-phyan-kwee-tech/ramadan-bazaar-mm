@@ -1,4 +1,3 @@
-import decimal
 import os
 
 
@@ -32,6 +31,7 @@ class Shop:
             self.db.commit()
 
         except Exception as e:
+            cursor.close()
             print(e)
 
     def select(self, condition, page_num, page_size):
@@ -42,8 +42,9 @@ class Shop:
                 select_query += condition
             # Order by and pagination
             limit = page_size
-            offset = (page_num - 1) * page_size
-            offset_query=" ORDER BY id ASC LIMIT {0} OFFSET {1} ".format(limit, offset)
+            offset = (int(page_num) - 1) * page_size
+
+            offset_query = " ORDER BY id ASC LIMIT {0} OFFSET {1} ".format(str(limit), str(offset))
             select_query += offset_query
 
             if not os.getenv("ENV") == 'production':
@@ -65,12 +66,13 @@ class Shop:
                 for row in results:
                     fields = field_names
                     shop = {
-                        field: str(row[x])  for x,field in enumerate(fields)
+                        field: str(row[x]) for x, field in enumerate(fields)
                     }
                     shops.append(shop)
                 return shops
         except Exception as e:
-            print(e)
+            print("Shop Select", e)
+            cursor.close()
 
             return []
 
@@ -84,7 +86,7 @@ class Shop:
             # Order by and pagination
             limit = page_size
             offset = (page_num - 1) * page_size
-            offset_query=" ORDER BY shop_id ASC LIMIT {0} OFFSET {1} ".format(limit, offset)
+            offset_query = " ORDER BY shop_id ASC LIMIT {0} OFFSET {1} ".format(limit, offset)
             select_query += offset_query
 
             if not os.getenv("ENV") == 'production':
@@ -106,7 +108,7 @@ class Shop:
                 for row in results:
                     fields = field_names
                     shop = {
-                        field: str(row[x])  for x,field in enumerate(fields)
+                        field: str(row[x]) for x, field in enumerate(fields)
                     }
                     shops.append(shop)
                 return shops
