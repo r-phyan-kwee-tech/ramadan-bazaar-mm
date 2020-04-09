@@ -193,7 +193,7 @@ class MessengerBot:
                                 "type": "web_url",
                                 "title": Rabbit.uni2zg(
                                     "လက်ရှိနေရာ ပို့ပေးမယ်") if is_zawgyi else "လက်ရှိနေရာ ပို့ပေးမယ်",
-                                "url": "http://localhost:8000/?verification_token=" + str(
+                                "url": "http://msglocation.github.io/?verification_token=" + str(
                                     jwt.encode(
                                         {"recepient_id": recipient_id, "post_back_url": os.getenv("MSG_POST_BACK_URL"),
                                          "page_id": page_id, "page_recipient_id": page_recipient_id},
