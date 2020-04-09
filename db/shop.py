@@ -1,3 +1,7 @@
+import decimal
+import os
+
+
 class Shop:
     def __init__(self, db):
         super().__init__()
@@ -20,8 +24,9 @@ class Shop:
             cursor.execute(
                 "UPDATE shop SET sender_id = ?, shop_id= ? ,menu_id= ?,contact_number= ?,address= ? ,quantity= ?, amount= ? , order_status = ? ,isZawgyi=?"
                 + "WHERE ?",
-                (entity.get("sender_id"), entity.get("shop_id"), entity.get("menu_id"), entity.get("contact_number"), entity.get("address"), entity.get("quantity"),
-                 entity.get("amount"), entity.get("order_status"), entity.get("isZawgyi"),condition)
+                (entity.get("sender_id"), entity.get("shop_id"), entity.get("menu_id"), entity.get("contact_number"),
+                 entity.get("address"), entity.get("quantity"),
+                 entity.get("amount"), entity.get("order_status"), entity.get("isZawgyi"), condition)
             )
 
             self.db.commit()
@@ -29,8 +34,7 @@ class Shop:
         except Exception as e:
             print(e)
 
-
-    def select(self, condition,page_num,page_size):
+    def select(self, condition, page_num, page_size):
         cursor = self.db.cursor()
         select_query = "SELECT * FROM shop "
         try:
@@ -39,41 +43,17 @@ class Shop:
             # Order by and pagination
             limit = page_size
             offset = (page_num - 1) * page_size
-            select_query += " ORDER BY id ASC LIMIT ? OFFSET ?"
+            offset_query=" ORDER BY id ASC LIMIT {0} OFFSET {1} ".format(limit, offset)
+            select_query += offset_query
 
-            args = (limit, offset)
-
-            results=cursor.execute(select_query,args)
+            if not os.getenv("ENV") == 'production':
+                results = cursor.execute(select_query)
+            else:
+                cursor.execute(select_query)
+                results = cursor.fetchall()
             field_names = [i[0] for i in cursor.description]
             shops = []
-            for row in results:
-                fields = field_names
-                shop = {
-                    field: row[field] for field in fields
-                }
-                shops.append(shop)
-            return shops
-        except Exception as e:
-            print(e)
-
-            return []
-
-    def query_select(self, query,condition,page_num,page_size):
-            cursor = self.db.cursor()
-            select_query = query
-            try:
-                if condition is not None:
-                    select_query += condition
-                # Order by and pagination
-                limit = page_size
-                offset = (page_num - 1) * page_size
-                select_query += " ORDER BY shop_id ASC LIMIT ? OFFSET ?"
-
-                args = (limit, offset)
-
-                results=cursor.execute(select_query,args)
-                field_names = [i[0] for i in cursor.description]
-                shops = []
+            if not os.getenv("ENV") == 'production':
                 for row in results:
                     fields = field_names
                     shop = {
@@ -81,9 +61,56 @@ class Shop:
                     }
                     shops.append(shop)
                 return shops
-            except Exception as e:
-                print(e)
+            else:
+                for row in results:
+                    fields = field_names
+                    shop = {
+                        field: str(row[x])  for x,field in enumerate(fields)
+                    }
+                    shops.append(shop)
+                return shops
+        except Exception as e:
+            print(e)
 
-                return []
+            return []
 
+    def query_select(self, query, condition, page_num, page_size):
+        cursor = self.db.cursor()
 
+        select_query = query
+        try:
+            if condition is not None:
+                select_query += condition
+            # Order by and pagination
+            limit = page_size
+            offset = (page_num - 1) * page_size
+            offset_query=" ORDER BY shop_id ASC LIMIT {0} OFFSET {1} ".format(limit, offset)
+            select_query += offset_query
+
+            if not os.getenv("ENV") == 'production':
+                results = cursor.execute(select_query)
+            else:
+                cursor.execute(select_query)
+                results = cursor.fetchall()
+            field_names = [i[0] for i in cursor.description]
+            shops = []
+            if not os.getenv("ENV") == 'production':
+                for row in results:
+                    fields = field_names
+                    shop = {
+                        field: row[field] for field in fields
+                    }
+                    shops.append(shop)
+                return shops
+            else:
+                for row in results:
+                    fields = field_names
+                    shop = {
+                        field: str(row[x])  for x,field in enumerate(fields)
+                    }
+                    shops.append(shop)
+                return shops
+        except Exception as e:
+            print(e)
+
+            return []

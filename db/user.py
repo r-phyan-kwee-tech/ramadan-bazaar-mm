@@ -1,3 +1,6 @@
+import os
+
+
 class User:
     def __init__(self, db):
         super().__init__()
@@ -41,17 +44,53 @@ class User:
         try:
             if condition is not None:
                 select_query += condition
-            results = cursor.execute(select_query)
 
+            if not os.getenv("ENV") == 'production':
+                results = cursor.execute(select_query)
+            else:
+                cursor.execute(select_query)
+                results = cursor.fetchall()
             field_names = [i[0] for i in cursor.description]
             users = []
-            for row in results:
-                fields = field_names
-                user = {
-                    field: row[field] for field in fields
-                }
-                users.append(user)
-            return users
+            if not os.getenv("ENV") == 'production':
+                for row in results:
+                    fields = field_names
+                    user = {
+                        field: row[field] for field in fields
+                    }
+                    users.append(user)
+                return users
+            else:
+                for row in results:
+                    fields = field_names
+                    user = {
+                        field: str(row[x])  for x,field in enumerate(fields)
+                    }
+                    users.append(user)
+                return users
         except Exception as e:
             print(e)
+
             return []
+
+    #
+    # def select(self, condition):
+    #     cursor = self.db.cursor()
+    #     select_query = "SELECT * FROM user "
+    #     try:
+    #         if condition is not None:
+    #             select_query += condition
+    #         results = cursor.execute(select_query)
+    #
+    #         field_names = [i[0] for i in cursor.description]
+    #         users = []
+    #         for row in results:
+    #             fields = field_names
+    #             user = {
+    #                 field: row[field] for field in fields
+    #             }
+    #             users.append(user)
+    #         return users
+    #     except Exception as e:
+    #         print(e)
+    #         return []

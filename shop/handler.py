@@ -10,4 +10,4 @@ class ShopHandler(BaseHandler):
     def get(self, shop_id):
         shop_uc = ShopUseCase(shop_id, self.application.db)
         menu_items = shop_uc.fetch_shop_detail()
-        return self.write_json({"result": True, "shops": menu_items})
+        return self.write_json({"result": True, "menu_items": menu_items})
