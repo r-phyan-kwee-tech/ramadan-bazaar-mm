@@ -178,7 +178,10 @@ class LocationBaseShopSelectionUseCase:
         shops = self._query_location_based_shops(self.page_num, self.page_size)
         if len(shops) is not 0:
             self.bot.send_generic_reply(self.sender_id, self._generate_shops(shops, self.is_zawgyi), self.is_zawgyi)
-
+        else:
+            self.bot.send_quick_reply(self.sender_id, self.no_shops_found,
+                                      self._after_shop_selection_exit(self.is_zawgyi),
+                                      self.is_zawgyi)
     def handle_location_base_reply(self, payload):
         if payload == self.NEXT_LOCATION_SHOPS:
             self.page_num = int(self.current_user.get('current_shop_page')) + 1
