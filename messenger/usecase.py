@@ -120,7 +120,7 @@ class FontSelectionUseCase:
         return [
             {
                 "content_type": "text",
-                "title": Rabbit.uni2zg("ဝါဖြေပွဲဆိုင်တွေ ကြည့်မယ်") if is_zawgyi else "ဝါဖြေပွဲဆိုင်တွေ ကြည့်မယ်",
+                "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ််") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
                 "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
                 "payload": self.BROWSE_SHOPS
             },
@@ -237,7 +237,7 @@ class ShopSelectionUseCase:
         return [
             {
                 "content_type": "text",
-                "title": Rabbit.uni2zg("ဝါဖြေပွဲ ကြည့်ရန်") if is_zawgyi else "ဝါဖြေပွဲ ကြည့်ရန်",
+                "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ်") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
                 "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
                 "payload": self.BROWSE_SHOPS
             },
@@ -249,7 +249,7 @@ class ShopSelectionUseCase:
             },
             {
                 "content_type": "text",
-                "title": Rabbit.uni2zg("တည်နေရာရွေးရန်") if is_zawgyi else "တည်နေရာရွေးရန်",
+                "title": Rabbit.uni2zg("အနီးနားမှာရှာမယ်") if is_zawgyi else "အနီးနားမှာရှာမယ်",
                 "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_location.png",
                 "payload": self.SELECT_LOCATION_PAYLOAD
             },
