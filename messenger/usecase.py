@@ -74,6 +74,10 @@ class MessengerUseCase:
     def handle_text_input(self):
         bot = self.responder
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is 0:
+            self.user.insert({"sender_id": self.recipient_id})
+            users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+
         if len(users) is not 0:
             current_user = users[0]
             reaction_bot = TextInputResponseUseCase(self.recipient_id, self.recipient_reaction, current_user, bot)
@@ -82,6 +86,9 @@ class MessengerUseCase:
     def handle_reaction(self):
         bot = self.responder
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is 0:
+            self.user.insert({"sender_id": self.recipient_id})
+            users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
             reaction_bot = ReactionResponseUseCase(self.recipient_id, self.recipient_reaction, current_user, bot)
@@ -90,6 +97,9 @@ class MessengerUseCase:
     def handle_attachment(self):
         bot = self.responder
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is 0:
+            self.user.insert({"sender_id": self.recipient_id})
+            users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
             current_user['lat'] = self.latitude
@@ -106,6 +116,9 @@ class MessengerUseCase:
 
         bot = self.responder
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is 0:
+            self.user.insert({"sender_id": self.recipient_id})
+            users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
             fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot, self.page_id,
@@ -117,6 +130,9 @@ class MessengerUseCase:
     def handle_postback(self):
         bot = self.responder
         users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is 0:
+            self.user.insert({"sender_id": self.recipient_id})
+            users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
         if len(users) is not 0:
             current_user = users[0]
             fontselection_bot = FontSelectionUseCase(self.recipient_id, self.user, current_user, bot, self.page_id,
@@ -473,7 +489,7 @@ class ShopSelectionUseCase:
         self.EXIT_SHOPS = "EXIT_SHOPS"
         self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
         self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း "
-        self.about_us_response="(Assalamualaikum) \n ကိုရိုနာဗိုင်းရစ် ကိုဗစ်-၁၉ ကူးစက်မှုများ ကြောင့်နှစ်စဥ် ရမဇန်ဥပုဒ် ကာလတွင်း ဝါဖြေပွဲ ရောင်းချသူမိတ်ဆွေများ ရောင်းချရန် အတွက် သက်ဆိုင်ရာမှကန့်သတ်မှုများရှိလာနိုင်တဲ့အတွက် ကျတော်တို့ Ramadan Bazaar Myanmar Page ပာာ ရောင်းသူ ဝယ်သူ ချိတ်ဆက် နိုင် အောင် လုပ်ပေးနိုင်သည့်နေရာ တစ်ခုဖြစ်ပါသည်။ ကျတော်တို့တတ်ကျွမ်းသော နည်းပညာကို ဓမ္မဒါန အဖြစ် အစ္စလာမ်ဘာသာဝင်များ အဆင်ပြေစေရန်ကူညီဆောင်ရွက်ခြင်းသာဖြစ်ပါတယ်ဗျာ။"
+        self.about_us_response="(Assalamualaikum) \n COVID-19 ကူးစက်မှုများ ကြောင့်နှစ်စဥ် ရမဇန်ဥပုဒ် ကာလတွင်း ဝါဖြေပွဲ ရောင်းချသူမိတ်ဆွေများ ရောင်းချရန် အတွက် သက်ဆိုင်ရာမှကန့်သတ်မှုများရှိလာနိုင်တဲ့အတွက် ကျတော်တို့ Ramadan Bazaar Myanmar Page ပာာ ရောင်းသူ ဝယ်သူ ချိတ်ဆက် နိုင် အောင် လုပ်ပေးနိုင်သည့်နေရာ တစ်ခုဖြစ်ပါသည်။ ကျတော်တို့တတ်ကျွမ်းသော နည်းပညာကို ဓမ္မဒါန အဖြစ် အစ္စလာမ်ဘာသာဝင်များ အဆင်ပြေစေရန်ကူညီဆောင်ရွက်ခြင်းသာဖြစ်ပါတယ်ဗျာ။"
 
     def handle_shops_quick_reply(self, payload):
         if payload == self.BROWSE_SHOPS:
