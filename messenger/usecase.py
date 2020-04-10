@@ -157,7 +157,7 @@ class TextInputResponseUseCase:
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
 
-        self.after_text_input_received_text = "ဆက်သွယ်ပေးတာကျေးဇူးတင်ပါတယ်ခင်ဗျာ Ramadan Bazaar Myanmar Page တွင် အခမဲ့ ဝါဖြေပွဲရောင်းချလိုပါက ဒီဖုန်းနံပါတ် 09764328010 ကိုဆက်သွယ်ပေးပါခင်ဗျာ။"
+        self.after_text_input_received_text = "ဆက်သွယ်ပေးတာကျေးဇူးတင်ပါတယ်ခင်ဗျာ Ramadan Bazaar Myanmar Page တွင် ဝါဖြေပွဲရောင်းချလိုပါက ဒီဖုန်းနံပါတ် 09764328010 ကိုဆက်သွယ်ပေးပါခင်ဗျာ။"
 
     def handle_text_response(self):
         self.bot.send_quick_reply(self.sender_id, self.after_text_input_received_text,
