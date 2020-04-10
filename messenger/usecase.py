@@ -18,6 +18,7 @@ class MessengerUseCase:
         self.page_id = ''
         self.page_sender_id = ''
         self.page_recipient_id = ''
+        self.sent_text = ''
         self.recipient_reaction = None
         self.latitude = 0.0
         self.longitude = 0.0
@@ -39,8 +40,8 @@ class MessengerUseCase:
 
                     bot.send_typing_on(self.recipient_id)
                     if message['message'].get('text') and message['message'].get('quick_reply') is None:
-                        response_sent_text = "Hello"
-                        bot.send_message(self.recipient_id, response_sent_text)
+                        self.sent_text = message['message'].get('text')
+                        self.handle_text_input()
 
                     if message['message'].get('quick_reply'):
                         self.quick_reply_payload = message['message'].get('quick_reply').get('payload')
@@ -69,6 +70,14 @@ class MessengerUseCase:
                         self.quick_reply_payload = message["postback"]["payload"]
                         self.handle_postback()
                 bot.send_typing_off(self.recipient_id)
+
+    def handle_text_input(self):
+        bot = self.responder
+        users = self.user.select("WHERE public.user.sender_id = {0}".format(self.recipient_id))
+        if len(users) is not 0:
+            current_user = users[0]
+            reaction_bot = TextInputResponseUseCase(self.recipient_id, self.recipient_reaction, current_user, bot)
+            reaction_bot.handle_text_response()
 
     def handle_reaction(self):
         bot = self.responder
@@ -120,6 +129,55 @@ class MessengerUseCase:
             location_selection_bot.handle_location_base_reply(self.quick_reply_payload)
 
 
+class TextInputResponseUseCase:
+    def __init__(self, sender_id, reaction, current_user, bot):
+        self.sender_id = sender_id
+        self.bot = bot
+        self.reaction = reaction
+        self.current_user = current_user
+        self.is_zawgyi = current_user.get("iszawgyi")
+        self.BROWSE_SHOPS = "BROWSE_SHOPS"
+        self.SELECT_LOCATION_PAYLOAD = "SELECT_LOCATION_PAYLOAD"
+        self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
+        self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
+
+        self.after_text_input_received_text = "ဆက်သွယ်ပေးတာကျေးဇူးတင်ပါတယ်ခင်ဗျာ Ramadan Bazaar Myanmar Page တွင် အခမဲ့ ဝါဖြေပွဲရောင်းချလိုပါက ဒီဖုန်းနံပါတ် 09764328010 ကိုဆက်သွယ်ပေးပါခင်ဗျာ။"
+
+    def handle_text_response(self):
+        self.bot.send_quick_reply(self.sender_id, self.after_text_input_received_text,
+                                  self._after_text_input_received(self.is_zawgyi), self.is_zawgyi)
+
+    def _after_text_input_received(self, is_zawgyi):
+        is_zawgyi = str2bool(is_zawgyi)
+        return [
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ်") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
+                "payload": self.BROWSE_SHOPS
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အနီးနားမှာရှာမယ်") if is_zawgyi else "အနီးနားမှာရှာမယ်",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_location.png",
+                "payload": self.SELECT_LOCATION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ကျွန်တော်တို့အကြောင်း") if is_zawgyi else "ကျွန်တော်တို့အကြောင်း",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_info.png",
+                "payload": self.ABOUT_US_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "payload": self.FONT_SELECTION_PAYLOAD
+            }
+
+        ]
+
+
 class ReactionResponseUseCase:
     def __init__(self, sender_id, reaction, current_user, bot):
         self.sender_id = sender_id
@@ -131,18 +189,19 @@ class ReactionResponseUseCase:
     def handle_reaction(self):
 
         if self.reaction == 'wow':
-            self.bot.send_message(self.sender_id,"တကယ်အံသြ တယ်ဆိုရင် ကျေးဇူးတင်ပါတယ်ဗျာ။", self.is_zawgyi)
+            self.bot.send_message(self.sender_id, "တကယ်အံသြ တယ်ဆိုရင် ကျေးဇူးတင်ပါတယ်ဗျာ။", self.is_zawgyi)
         if self.reaction == 'like':
-            self.bot.send_message(self.sender_id,"တကယ်ကြိုက်တယ်ဆိုတာသိရတော့လည်း ပျော်တာပေါ့", self.is_zawgyi)
+            self.bot.send_message(self.sender_id, "တကယ်ကြိုက်တယ်ဆိုတာသိရတော့လည်း ပျော်တာပေါ့", self.is_zawgyi)
         if self.reaction == 'love':
-            self.bot.send_message(self.sender_id,"အသဲလေးတွေပေးတယ်ဆိုတော့ ကြွေတာပေါ့", self.is_zawgyi)
+            self.bot.send_message(self.sender_id, "အသဲလေးတွေပေးတယ်ဆိုတော့ ကြွေတာပေါ့", self.is_zawgyi)
         if self.reaction == 'angry':
-            self.bot.send_message(self.sender_id,"ဘာများအဆင်မပြေတာရှိလို့ လဲ ဗျာ ကျနော့် ကိုပြောပါအုန်းဗျ။", self.is_zawgyi)
+            self.bot.send_message(self.sender_id, "ဘာများအဆင်မပြေတာရှိလို့ လဲ ဗျာ ကျနော့် ကိုပြောပါအုန်းဗျ။",
+                                  self.is_zawgyi)
         if self.reaction == 'sad':
-            self.bot.send_message(self.sender_id,"ဝမ်းမနည်းပါနဲ့ဗျာ အဆင်မပြေတာတွေ အဆင်ပြေသွားမှာပါဗျာ။", self.is_zawgyi)
+            self.bot.send_message(self.sender_id, "ဝမ်းမနည်းပါနဲ့ဗျာ အဆင်မပြေတာတွေ အဆင်ပြေသွားမှာပါဗျာ။",
+                                  self.is_zawgyi)
         if self.reaction == 'other':
-            self.bot.send_message(self.sender_id,"react လေးတွေလာပေးတယ်ပေါ့", self.is_zawgyi)
-
+            self.bot.send_message(self.sender_id, "react လေးတွေလာပေးတယ်ပေါ့", self.is_zawgyi)
 
 
 class LocationBaseShopSelectionUseCase:
@@ -182,6 +241,7 @@ class LocationBaseShopSelectionUseCase:
             self.bot.send_quick_reply(self.sender_id, self.no_shops_found,
                                       self._after_shop_selection_exit(self.is_zawgyi),
                                       self.is_zawgyi)
+
     def handle_location_base_reply(self, payload):
         if payload == self.NEXT_LOCATION_SHOPS:
             self.page_num = int(self.current_user.get('current_shop_page')) + 1
@@ -222,12 +282,6 @@ class LocationBaseShopSelectionUseCase:
                 "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ်") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
                 "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
                 "payload": self.BROWSE_SHOPS
-            },
-            {
-                "content_type": "text",
-                "title": Rabbit.uni2zg("ဘာစားစရာရလဲကြည့်မယ်") if is_zawgyi else "ဘာစားစရာရလဲကြည့်မယ်",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
-                "payload": self.AVAILABLE_MENUS
             },
             {
                 "content_type": "text",
@@ -311,6 +365,7 @@ class FontSelectionUseCase:
         self.after_font_selection = "ကောင်းပါပြီ ဒါဆို အောက်က menuလေးတွေကို နှိပ်ပြီးကြည့်လို့ရပါပြီခင်ဗျာ။"
         self.no_location_response = "ဟုတ်ပြီ ဒါဆိုရင် တော့ ဒီတိုင်းပဲရှာဖို့ အောက်က ခလုပ်လေးတွေကိုနှိပ်လိုက်ပါခင်ဗျာ။"
 
+
     def send_font_selection(self):
         is_zawgyi = False
         self.bot.send_quick_reply(self.sender_id, self.EVENT_FONT_CHANGE, self._font_selection_payload(), is_zawgyi)
@@ -320,6 +375,8 @@ class FontSelectionUseCase:
         if self.quick_reply_payload == self.FONT_SELECTION_PAYLOAD:
             self.bot.send_quick_reply(self.sender_id, self.EVENT_FONT_CHANGE, self._font_selection_payload(),
                                       self.is_zawgyi)
+
+
 
         if self.quick_reply_payload == self.ZAW_GYI_PAYLOAD:
             self.current_user["iszawgyi"] = True
@@ -355,12 +412,6 @@ class FontSelectionUseCase:
                 "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ််") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
                 "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
                 "payload": self.BROWSE_SHOPS
-            },
-            {
-                "content_type": "text",
-                "title": Rabbit.uni2zg("ဘာစားစရာရလဲကြည့်မယ်") if is_zawgyi else "ဘာစားစရာရလဲကြည့်မယ်",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
-                "payload": self.AVAILABLE_MENUS
             },
             {
                 "content_type": "text",
@@ -422,6 +473,7 @@ class ShopSelectionUseCase:
         self.EXIT_SHOPS = "EXIT_SHOPS"
         self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
         self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း "
+        self.about_us_response="(Assalamualaikum) \n ကိုရိုနာဗိုင်းရစ် ကိုဗစ်-၁၉ ကူးစက်မှုများ ကြောင့်နှစ်စဥ် ရမဇန်ဥပုဒ် ကာလတွင်း ဝါဖြေပွဲ ရောင်းချသူမိတ်ဆွေများ ရောင်းချရန် အတွက် သက်ဆိုင်ရာမှကန့်သတ်မှုများရှိလာနိုင်တဲ့အတွက် ကျတော်တို့ Ramadan Bazaar Myanmar Page ပာာ ရောင်းသူ ဝယ်သူ ချိတ်ဆက် နိုင် အောင် လုပ်ပေးနိုင်သည့်နေရာ တစ်ခုဖြစ်ပါသည်။ ကျတော်တို့တတ်ကျွမ်းသော နည်းပညာကို ဓမ္မဒါန အဖြစ် အစ္စလာမ်ဘာသာဝင်များ အဆင်ပြေစေရန်ကူညီဆောင်ရွက်ခြင်းသာဖြစ်ပါတယ်ဗျာ။"
 
     def handle_shops_quick_reply(self, payload):
         if payload == self.BROWSE_SHOPS:
@@ -457,12 +509,47 @@ class ShopSelectionUseCase:
                 self.bot.send_quick_reply(self.sender_id, self.browse_shops_end,
                                           self._after_shop_selection_exit(self.is_zawgyi),
                                           self.is_zawgyi)
+        if payload == self.ABOUT_US_PAYLOAD:
+            self.bot.send_quick_reply(self.sender_id, self.about_us_response,
+                                      self._after_font_selection_payload(self.is_zawgyi),
+                                      self.is_zawgyi)
         if payload == self.EXIT_SHOPS:
             self.current_user["current_shop_page"] = 1
             self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
             self.bot.send_quick_reply(self.sender_id, self.after_exit_shops,
                                       self._after_shop_selection_exit(self.is_zawgyi),
                                       self.is_zawgyi)
+
+    def _after_font_selection_payload(self, is_zawgyi):
+        is_zawgyi = str2bool(is_zawgyi)
+        return [
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ််") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
+                "payload": self.BROWSE_SHOPS
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အနီးနားမှာရှာမယ်") if is_zawgyi else "အနီးနားမှာရှာမယ်",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_location.png",
+                "payload": self.SELECT_LOCATION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ကျွန်တော်တို့အကြောင်း") if is_zawgyi else "ကျွန်တော်တို့အကြောင်း",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_info.png",
+                "payload": self.ABOUT_US_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
+                "payload": self.FONT_SELECTION_PAYLOAD
+            }
+
+        ]
+
 
     def _after_shop_selection_exit(self, is_zawgyi):
         is_zawgyi = str2bool(is_zawgyi)
@@ -472,12 +559,6 @@ class ShopSelectionUseCase:
                 "title": Rabbit.uni2zg("ဆိုင်တွေကိုကြည့်မယ်") if is_zawgyi else "ဆိုင်တွေကိုကြည့်မယ်",
                 "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_fork_knife.png",
                 "payload": self.BROWSE_SHOPS
-            },
-            {
-                "content_type": "text",
-                "title": Rabbit.uni2zg("ဘာစားစရာရလဲကြည့်မယ်") if is_zawgyi else "ဘာစားစရာရလဲကြည့်မယ်",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
-                "payload": self.AVAILABLE_MENUS
             },
             {
                 "content_type": "text",
