@@ -2,5 +2,5 @@
 *.db
 .idea
 .env
-
+client-secret.json
 __pycache__/

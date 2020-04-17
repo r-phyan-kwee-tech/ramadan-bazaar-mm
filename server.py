@@ -20,134 +20,13 @@ class App(tornado.web.Application):
         if not os.environ['ENV'] == 'production':
             self.db = sqlite3.connect("bazaar.db")
             self.db.row_factory = sqlite3.Row
-            self.init_db()
+            # self.init_db()
         else:
 
             self.db = psycopg2.connect(
                 os.getenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/db_ramadan_bazar"))
             self.init_pg_db()
 
-    def init_db(self):
-        cursor = self.db.cursor()
-
-        # Create table
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS shop ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
-            + "description TEXT,"
-            + "lat DECIMAL NOT NULL,"
-            + "lon DECIMAL NOT NULL,"
-            + "menu_id INTEGER NOT NULL,"
-            + "address TEXT NOT NULL,"
-            + "phone_number_1 TEXT NOT NULL,"
-            + "phone_number_2 TEXT NOT NULL,"
-            + "phone_number_3 TEXT NOT NULL,"
-            + "township_id INTEGER NOT NULL,"
-            + "region_id INTEGER NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
-            + ");"
-        )
-
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'region' ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
-            + ");"
-
-        )
-
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'township' ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
-            + "region_id INTEGER NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
-            + ");"
-        )
-
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'menu' ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
-            + ");"
-
-        )
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'menu_item' ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
-            + "unit_price INTEGER NOT NULL,"
-            + "description_uni TEXT NOT NULL,"
-            + "description_zawgyi TEXT NOT NULL,"
-            + "menu_category_id INTEGER NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "menu_id	INTEGER"
-            + ");"
-
-        )
-
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'menu_category' ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
-            + ");"
-
-        )
-
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'orders' ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "sender_id INTEGER NOT NULL,"
-            + "shop_id INTEGER NOT NULL,"
-            + "menu_id INTEGER NOT NULL,"
-            + "menu_item_id INTEGER NOT NULL,"
-            + "quantity INTEGER NOT NULL,"
-            + "order_type INTEGER NOT NULL,"
-            + "unit_price DECIMAL NOT NULL,"
-            + "total_price DECIMAL NOT NULL,"
-            + "address TEXT NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
-            + ");"
-        )
-
-        cursor.execute(
-            "CREATE TABLE IF NOT EXISTS 'user' ("
-            + "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
-            + "sender_id INTEGER NOT NULL,"
-            + "shop_id TEXT NOT NULL,"
-            + "menu_id INTEGER ,"
-            + "contact_number TEXT NOT NULL,"
-            + "current_shop_page number NOT NULL DEFAULT 1,"
-            + "current_menu_page number NOT NULL DEFAULT 1,"
-            + "address TEXT NOT NULL,"
-            + "quantity INTEGER ,"
-            + "lat DECIMAL DEFAULT 0,"
-            + "lon DECIMAL DEFAULT 0,"
-            + "amount INTEGER ,"
-            + "isZawgyi BOOLEAN,"
-            + "order_status TEXT NOT NULL,"
-            + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP "
-            + ");"
-        )
-        self.db.commit()
 
     def init_pg_db(self):
         cursor = self.db.cursor()
@@ -155,17 +34,18 @@ class App(tornado.web.Application):
         # Create table
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS shop ("
-            + " ID  SERIAL PRIMARY KEY,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
+            + "ID  SERIAL PRIMARY KEY,"
+            + "name_uni TEXT ,"
+            + "name_zawgyi TEXT ,"
             + "description TEXT,"
             + "lat DECIMAL NOT NULL,"
             + "lon DECIMAL NOT NULL,"
+            + "delivery_include BOOLEAN DEFAULT TRUE,"
             + "menu_id INTEGER NOT NULL,"
             + "address TEXT NOT NULL,"
-            + "phone_number_1 TEXT NOT NULL,"
-            + "phone_number_2 TEXT NOT NULL,"
-            + "phone_number_3 TEXT NOT NULL,"
+            + "phone_number_1 TEXT ,"
+            + "phone_number_2 TEXT ,"
+            + "phone_number_3 TEXT ,"
             + "township_id INTEGER NOT NULL,"
             + "region_id INTEGER NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
@@ -176,8 +56,8 @@ class App(tornado.web.Application):
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS region ("
             + " ID  SERIAL PRIMARY KEY,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
+            + "name_uni TEXT,"
+            + "name_zawgyi TEXT,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
@@ -187,8 +67,8 @@ class App(tornado.web.Application):
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS township ("
             + " ID  SERIAL PRIMARY KEY,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
+            + "name_uni TEXT ,"
+            + "name_zawgyi TEXT ,"
             + "region_id INTEGER NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
@@ -197,9 +77,9 @@ class App(tornado.web.Application):
 
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS menu ("
-            + " ID  SERIAL PRIMARY KEY,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
+            + "ID  SERIAL PRIMARY KEY,"
+            + "name_uni TEXT ,"
+            + "name_zawgyi TEXT,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
@@ -207,13 +87,14 @@ class App(tornado.web.Application):
         )
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS menu_item ("
-            + " ID  SERIAL PRIMARY KEY,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
-            + "unit_price INTEGER NOT NULL,"
-            + "description_uni TEXT NOT NULL,"
-            + "description_zawgyi TEXT NOT NULL,"
+            + "ID SERIAL PRIMARY KEY,"
+            + "name_uni TEXT, "
+            + "name_zawgyi TEXT,"
+            + "unit_price BIGINT NOT NULL,"
+            + "description_uni TEXT,"
+            + "description_zawgyi TEXT,"
             + "menu_category_id INTEGER NOT NULL,"
+            + "image_url TEXT ,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "menu_id	INTEGER"
@@ -224,8 +105,8 @@ class App(tornado.web.Application):
         cursor.execute(
             "CREATE TABLE IF NOT EXISTS menu_category ("
             + " ID  SERIAL PRIMARY KEY,"
-            + "name_uni TEXT NOT NULL,"
-            + "name_zawgyi TEXT NOT NULL,"
+            + "name_uni TEXT ,"
+            + "name_zawgyi TEXT ,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"

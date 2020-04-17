@@ -7,13 +7,14 @@ class Shop:
 
         # Initialising db connection
         self.db = db
+        self.cols=("name","description","menu_id","lat","lon","address","phone_number_1","phone_number_2","phone_number_3","township_id","region_id","delivery_include")
 
     def insert(self, entity):
         cursor = self.db.cursor()
         cursor.execute(
-            "INSERT INTO 'shop' ('sender_id', 'shop_id', 'menu_id', 'contact_number', 'address', 'quantity', 'amount', 'order_status') "
-            + "VALUES (?,?,?,?,?,?,?,?)",
-            (entity.get('sender_id'), 0, 0, '', '', '', '', '')
+            "INSERT INTO public.shop (name,description,menu_id,lat,lon,address,phone_number_1,phone_number_2,phone_number_3,township_id,region_id,delivery_include) "
+            + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (entity.get(col) for col in self.cols)
         )
         self.db.commit()
 
