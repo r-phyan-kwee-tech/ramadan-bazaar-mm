@@ -286,7 +286,7 @@ class LocationBaseShopSelectionUseCase:
                                                              decimal.Decimal(self.longitude),
                                                              decimal.Decimal(self.latitude))
         print(query)
-        where_condition = " WHERE distance<={0}".format(3)
+        where_condition = " WHERE distance<={0}".format(10)
         order_by = " ORDER BY distance ASC "
         return self.shop.query_select(query, where_condition, order_by, int(page_num), int(page_size))
 
@@ -326,7 +326,7 @@ class LocationBaseShopSelectionUseCase:
         return [{
             "title": Rabbit.uni2zg(str(shop.get("name_uni")+" "+str(shop.get("description")))) if is_zawgyi else str(shop.get("name_uni"))+" "+str(shop.get("description")),
             "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
-            "subtitle": Rabbit.uni2zg(str("{0}km အနီးတွင်ရှိသည်").format(shop.get("distance"))) if is_zawgyi else str("{0}km အနီးတွင်ရှိသည်").format(shop.get("distance")),
+            "subtitle": Rabbit.uni2zg(str("{0} km အကွာတွင်ရှိသည်").format(round(float(shop.get("distance")), 2))) if is_zawgyi else str("{0} km အကွာတွင်ရှိသည်").format(round(float(shop.get("distance")), 2)),
             "default_action": {
                 "type": "web_url",
                 "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
