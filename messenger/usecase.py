@@ -279,7 +279,7 @@ class LocationBaseShopSelectionUseCase:
 
     def _query_location_based_shops(self, page_num, page_size):
         query = "SELECT * FROM ( SELECT " \
-                "id, name_uni, address, lat, lon, (" \
+                "id, name_uni,description, address, lat, lon, (" \
                 "3959 * acos ( cos ( radians({0}) ) * cos( radians( lat ) ) * cos( radians( lon ) - radians({1}) )" \
                 "+ sin ( radians({2}) ) * sin( radians( lat ) ) )" \
                 ") AS distance FROM public.shop )sub".format(decimal.Decimal(self.latitude),
@@ -324,9 +324,9 @@ class LocationBaseShopSelectionUseCase:
         is_zawgyi = str2bool(is_zawgyi)
 
         return [{
-            "title": Rabbit.uni2zg(str(shop.get("name_uni"))) if is_zawgyi else str(shop.get("name_uni")),
+            "title": Rabbit.uni2zg(str(shop.get("name_uni")+" "+str(shop.get("description")))) if is_zawgyi else str(shop.get("name_uni"))+" "+str(shop.get("description")),
             "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
-            "subtitle": Rabbit.uni2zg(str(shop.get("description"))) if is_zawgyi else shop.get("description"),
+            "subtitle": Rabbit.uni2zg(str("{0}km အနီးတွင်ရှိသည်").format(shop.get("distance"))) if is_zawgyi else str("{0}km အနီးတွင်ရှိသည်").format(shop.get("distance")),
             "default_action": {
                 "type": "web_url",
                 "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
@@ -601,7 +601,7 @@ class ShopSelectionUseCase:
         is_zawgyi = str2bool(is_zawgyi)
 
         return [{
-            "title": Rabbit.uni2zg(str(shop.get("name_uni"))) if is_zawgyi else str(shop.get("name_uni")),
+            "title": Rabbit.uni2zg(str(shop.get("name_uni"))+str(shop.get("description"))) if is_zawgyi else str(shop.get("name_uni"))+str(shop.get("description")),
             "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
             "subtitle": Rabbit.uni2zg(str(shop.get("description"))) if is_zawgyi else shop.get("description"),
             "default_action": {

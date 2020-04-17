@@ -144,12 +144,15 @@ class App(tornado.web.Application):
             + "lon DECIMAL DEFAULT 0,"
             + "quantity INTEGER ,"
             + "amount INTEGER ,"
-            + "iszawgyi BOOLEAN,"
+            + "iszawgyi BOOLEAN DEFAULT False,"
             + "order_status TEXT NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP "
             + ");"
         )
+
+        cursor.execute("CREATE INDEX IF NOT EXISTS index_name ON public.user USING btree (current_shop_page, current_menu_page, lat, lon);")
+        cursor.execute("CREATE INDEX  IF NOT EXISTS user_lat_idx ON public.user (lat,lon,menu_id,shop_id,current_menu_page,current_shop_page);")
         self.db.commit()
 
     def load_env(self):
