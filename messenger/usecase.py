@@ -324,18 +324,22 @@ class LocationBaseShopSelectionUseCase:
         is_zawgyi = str2bool(is_zawgyi)
 
         return [{
-            "title": Rabbit.uni2zg(str(shop.get("name_uni")+" "+str(shop.get("description")))) if is_zawgyi else str(shop.get("name_uni"))+" "+str(shop.get("description")),
+            "title": Rabbit.uni2zg(
+                str(shop.get("name_uni") + " " + str(shop.get("description")))) if is_zawgyi else str(
+                shop.get("name_uni")) + " " + str(shop.get("description")),
             "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
-            "subtitle": Rabbit.uni2zg(str("{0} km အကွာတွင်ရှိသည်").format(round(float(shop.get("distance")), 2))) if is_zawgyi else str("{0} km အကွာတွင်ရှိသည်").format(round(float(shop.get("distance")), 2)),
+            "subtitle": Rabbit.uni2zg(
+                str("{0} km အကွာတွင်ရှိသည်").format(round(float(shop.get("distance")), 2))) if is_zawgyi else str(
+                "{0} km အကွာတွင်ရှိသည်").format(round(float(shop.get("distance")), 2)),
             "default_action": {
                 "type": "web_url",
-                "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                "url": "https://ramadan-bazzar-web.web.app/shop/{0}/{1}".format(shop.get("id"), is_zawgyi),
                 "webview_height_ratio": "compact",
             },
             "buttons": [
                 {
                     "type": "web_url",
-                    "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                    "url": "https://ramadan-bazzar-web.web.app/shop/{0}/{1}".format(shop.get("id"), is_zawgyi),
                     "title": Rabbit.uni2zg("Menu ကြည့်မယ်") if is_zawgyi else "Menu ကြည့်မယ်",
 
                 },
@@ -381,7 +385,6 @@ class FontSelectionUseCase:
         self.after_font_selection = "ကောင်းပါပြီ ဒါဆို အောက်က menuလေးတွေကို နှိပ်ပြီးကြည့်လို့ရပါပြီခင်ဗျာ။"
         self.no_location_response = "ဟုတ်ပြီ ဒါဆိုရင် တော့ ဒီတိုင်းပဲရှာဖို့ အောက်က ခလုပ်လေးတွေကိုနှိပ်လိုက်ပါခင်ဗျာ။"
 
-
     def send_font_selection(self):
         is_zawgyi = False
         self.bot.send_quick_reply(self.sender_id, self.EVENT_FONT_CHANGE, self._font_selection_payload(), is_zawgyi)
@@ -391,8 +394,6 @@ class FontSelectionUseCase:
         if self.quick_reply_payload == self.FONT_SELECTION_PAYLOAD:
             self.bot.send_quick_reply(self.sender_id, self.EVENT_FONT_CHANGE, self._font_selection_payload(),
                                       self.is_zawgyi)
-
-
 
         if self.quick_reply_payload == self.ZAW_GYI_PAYLOAD:
             self.current_user["iszawgyi"] = True
@@ -489,7 +490,7 @@ class ShopSelectionUseCase:
         self.EXIT_SHOPS = "EXIT_SHOPS"
         self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
         self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း "
-        self.about_us_response="(Assalamualaikum) \n COVID-19 ကူးစက်မှုများ ကြောင့်နှစ်စဥ် ရမဇန်ဥပုဒ် ကာလတွင်း ဝါဖြေပွဲ ရောင်းချသူမိတ်ဆွေများ ရောင်းချရန် အတွက် သက်ဆိုင်ရာမှကန့်သတ်မှုများရှိလာနိုင်တဲ့အတွက် ကျတော်တို့ Ramadan Bazaar Myanmar Page ပာာ ရောင်းသူ ဝယ်သူ ချိတ်ဆက် နိုင် အောင် လုပ်ပေးနိုင်သည့်နေရာ တစ်ခုဖြစ်ပါသည်။ ကျတော်တို့တတ်ကျွမ်းသော နည်းပညာကို ဓမ္မဒါန အဖြစ် အစ္စလာမ်ဘာသာဝင်များ အဆင်ပြေစေရန်ကူညီဆောင်ရွက်ခြင်းသာဖြစ်ပါတယ်ဗျာ။"
+        self.about_us_response = "(Assalamualaikum) \n COVID-19 ကူးစက်မှုများ ကြောင့်နှစ်စဥ် ရမဇန်ဥပုဒ် ကာလတွင်း ဝါဖြေပွဲ ရောင်းချသူမိတ်ဆွေများ ရောင်းချရန် အတွက် သက်ဆိုင်ရာမှကန့်သတ်မှုများရှိလာနိုင်တဲ့အတွက် ကျတော်တို့ Ramadan Bazaar Myanmar Page ပာာ ရောင်းသူ ဝယ်သူ ချိတ်ဆက် နိုင် အောင် လုပ်ပေးနိုင်သည့်နေရာ တစ်ခုဖြစ်ပါသည်။ ကျတော်တို့တတ်ကျွမ်းသော နည်းပညာကို ဓမ္မဒါန အဖြစ် အစ္စလာမ်ဘာသာဝင်များ အဆင်ပြေစေရန်ကူညီဆောင်ရွက်ခြင်းသာဖြစ်ပါတယ်ဗျာ။"
 
     def handle_shops_quick_reply(self, payload):
         if payload == self.BROWSE_SHOPS:
@@ -566,7 +567,6 @@ class ShopSelectionUseCase:
 
         ]
 
-
     def _after_shop_selection_exit(self, is_zawgyi):
         is_zawgyi = str2bool(is_zawgyi)
         return [
@@ -601,18 +601,19 @@ class ShopSelectionUseCase:
         is_zawgyi = str2bool(is_zawgyi)
 
         return [{
-            "title": Rabbit.uni2zg(str(shop.get("name_uni"))+str(shop.get("description"))) if is_zawgyi else str(shop.get("name_uni"))+str(shop.get("description")),
+            "title": Rabbit.uni2zg(str(shop.get("name_uni")) + str(shop.get("description"))) if is_zawgyi else str(
+                shop.get("name_uni")) + str(shop.get("description")),
             "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
             "subtitle": Rabbit.uni2zg(str(shop.get("description"))) if is_zawgyi else shop.get("description"),
             "default_action": {
                 "type": "web_url",
-                "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                "url": "https://ramadan-bazzar-web.web.app/shop/{0}/{1}".format(shop.get("id"), is_zawgyi),
                 "webview_height_ratio": "compact",
             },
             "buttons": [
                 {
                     "type": "web_url",
-                    "url": "https://ramadan-bazzar-web.web.app/shop/{0}".format(shop.get("id")),
+                    "url": "https://ramadan-bazzar-web.web.app/shop/{0}/{1}".format(shop.get("id"), is_zawgyi),
                     "title": Rabbit.uni2zg("Menu ကြည့်မယ်") if is_zawgyi else "Menu ကြည့်မယ်",
 
                 },

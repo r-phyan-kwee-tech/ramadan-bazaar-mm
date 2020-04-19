@@ -196,7 +196,8 @@ class MessengerBot:
                                 "url": "http://msglocation.github.io/?verification_token=" + str(
                                     jwt.encode(
                                         {"recepient_id": recipient_id, "post_back_url": os.getenv("MSG_POST_BACK_URL"),
-                                         "page_id": page_id, "page_recipient_id": page_recipient_id},
+                                         "page_id": page_id, "page_recipient_id": page_recipient_id,
+                                         "is_zawgyi": is_zawgyi},
                                         os.getenv("JWT_KEY"),
                                         algorithm='HS256')).replace("b'", "").replace("'",
                                                                                       "")
