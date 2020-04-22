@@ -37,7 +37,7 @@ class Shop:
 
     def select(self, condition, page_num, page_size):
         cursor = self.db.cursor()
-        select_query = "SELECT * FROM shop "
+        select_query = "select S.id, S.name_uni,S.name_zawgyi,S.description,S.menu_id,S.phone_number_1,S.phone_number_2,S.phone_number_3,R.name_uni as region_name from shop as S inner join region as R on S.region_id=R.id "
         try:
             if condition is not None:
                 select_query += condition
@@ -45,7 +45,7 @@ class Shop:
             limit = page_size
             offset = (int(page_num) - 1) * page_size
 
-            offset_query = " ORDER BY id ASC LIMIT {0} OFFSET {1} ".format(str(limit), str(offset))
+            offset_query = " ORDER BY S.id ASC LIMIT {0} OFFSET {1} ".format(str(limit), str(offset))
             select_query += offset_query
 
             if not os.getenv("ENV") == 'production':

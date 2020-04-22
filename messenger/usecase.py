@@ -604,7 +604,7 @@ class ShopSelectionUseCase:
             "title": Rabbit.uni2zg(str(shop.get("name_uni")) + str(shop.get("description"))) if is_zawgyi else str(
                 shop.get("name_uni")) + str(shop.get("description")),
             "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
-            "subtitle": Rabbit.uni2zg(str(shop.get("description"))) if is_zawgyi else shop.get("description"),
+            "subtitle": Rabbit.uni2zg(str(shop.get("region_name"))+"တွင်ရှိပါသည်။ "+str(shop.get("description"))) if is_zawgyi else shop.get("region_name")+"တွင်ရှိပါသည်။ "+shop.get("description"),
             "default_action": {
                 "type": "web_url",
                 "url": "https://ramadan-bazzar-web.web.app/shop/{0}/{1}".format(shop.get("id"), is_zawgyi),

@@ -40,17 +40,17 @@ def shop_data_importer(worksheet):
     print("DELETE FROM shop;")
     print("ALTER SEQUENCE shop_id_seq RESTART WITH 1;")
     cols = ["name_uni", "description", "menu_id", "lat", "lon", "address", "phone_number_1", "phone_number_2",
-            "phone_number_3", "township_id", "region_id", "delivery_include"]
+            "phone_number_3", "township_id", "region_id", "delivery_include","last_order_remark"]
     seperator = ","
     col_query = seperator.join(cols)
 
-    for i, item in enumerate(zip(*[worksheet.col_values(col + 1) for col in range(12)])):
+    for i, item in enumerate(zip(*[worksheet.col_values(col + 1) for col in range(13)])):
         if i > 0:
             result = map(split_pipe_last, item)
             item = dict(zip(cols, list(result)))
 
             query = "INSERT into shop ({0}".format(col_query)
-            query += ") VALUES ('{0}','{1}',{2},{3},{4},'{5}','{6}','{7}','{8}',{9},{10},'{11}');".format(
+            query += ") VALUES ('{0}','{1}',{2},{3},{4},'{5}','{6}','{7}','{8}',{9},{10},'{11}','{12}');".format(
                 *[item.get(field) for field in cols])
             print(query)
     pass

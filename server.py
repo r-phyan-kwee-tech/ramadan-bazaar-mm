@@ -18,11 +18,13 @@ class App(tornado.web.Application):
         self.load_env()
         self.db = None
         if not os.environ['ENV'] == 'production':
-            self.db = sqlite3.connect("bazaar.db")
-            self.db.row_factory = sqlite3.Row
+            # self.db = sqlite3.connect("bazaar.db")
+            # self.db.row_factory = sqlite3.Row
             # self.init_db()
+            self.db = psycopg2.connect(
+                os.getenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/db_ramadan_bazar"))
+            self.init_pg_db()
         else:
-
             self.db = psycopg2.connect(
                 os.getenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/db_ramadan_bazar"))
             self.init_pg_db()
@@ -48,6 +50,7 @@ class App(tornado.web.Application):
             + "phone_number_3 TEXT ,"
             + "township_id INTEGER NOT NULL,"
             + "region_id INTEGER NOT NULL,"
+            + "last_order_remark TEXT NOT NULL,"
             + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             + "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
             + ");"
@@ -191,6 +194,7 @@ def make_app(options):
 if __name__ == "__main__":
     # Define settings/options for the web app
     # Specify the port number to start the web app on (default value is port 6000)
+
     tornado.options.define("port", os.getenv('PORT', 3000))
     # Specify whether the app should run in debug mode
     # Debug mode restarts the app automatically on file changes
