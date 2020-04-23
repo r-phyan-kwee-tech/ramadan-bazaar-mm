@@ -30,7 +30,7 @@ class User:
                        "current_menu_page = '{10}', lat = '{11}', lon='{12}' ".format(
             entity.get("sender_id"), entity.get("shop_id"), entity.get("menu_id"), entity.get("contact_number"),
             entity.get("address"), entity.get("quantity"),
-            entity.get("amount"), entity.get("order_status"), entity.get("iszawgyi"),
+            entity.get("amount"), entity.get("order_status"), False if entity.get("iszawgyi") == None else entity.get("iszawgyi"),
             entity.get('current_shop_page'), entity.get('current_menu_page'), entity.get('lat'), entity.get('lon'))
 
         update_query += "WHERE {0}".format(condition)
