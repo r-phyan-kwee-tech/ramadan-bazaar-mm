@@ -1,12 +1,13 @@
 import json
 import logging
 import os
-import sqlite3
 
 import psycopg2
+import sentry_sdk
 import tornado.options
 import tornado.web
 from dotenv import load_dotenv
+from sentry_sdk.integrations.tornado import TornadoIntegration
 
 
 class App(tornado.web.Application):
@@ -16,6 +17,7 @@ class App(tornado.web.Application):
 
         # Initialising db connection
         self.load_env()
+        self.init_sentry()
         self.db = None
         if not os.environ['ENV'] == 'production':
             # self.db = sqlite3.connect("bazaar.db")
@@ -28,7 +30,6 @@ class App(tornado.web.Application):
             self.db = psycopg2.connect(
                 os.getenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/db_ramadan_bazar"))
             self.init_pg_db()
-
 
     def init_pg_db(self):
         cursor = self.db.cursor()
@@ -154,17 +155,26 @@ class App(tornado.web.Application):
             + ");"
         )
 
-        cursor.execute("CREATE INDEX IF NOT EXISTS index_name ON public.user USING btree (current_shop_page, current_menu_page, lat, lon);")
-        cursor.execute("CREATE INDEX  IF NOT EXISTS user_lat_idx ON public.user (lat,lon,menu_id,shop_id,current_menu_page,current_shop_page);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS index_name ON public.user USING btree (current_shop_page, current_menu_page, lat, lon);")
+        cursor.execute(
+            "CREATE INDEX  IF NOT EXISTS user_lat_idx ON public.user (lat,lon,menu_id,shop_id,current_menu_page,current_shop_page);")
         self.db.commit()
 
     def load_env(self):
         load_dotenv()
 
+    def init_sentry(self):
+
+        if os.getenv("ENV", "development") == "production":
+            sentry_sdk.init(
+                dsn="https://576be5f9f2ff4d0ca1d2ec6f6acc0d6c@o382124.ingest.sentry.io/5210493",
+                integrations=[TornadoIntegration()]
+            )
+
 
 class BaseHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
-
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
