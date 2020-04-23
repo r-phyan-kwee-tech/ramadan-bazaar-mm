@@ -156,7 +156,7 @@ class TextInputResponseUseCase:
         self.SELECT_LOCATION_PAYLOAD = "SELECT_LOCATION_PAYLOAD"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
-
+        self.HELP="HELP_PAYLOAD"
         self.after_text_input_received_text = "ဆက်သွယ်ပေးတာကျေးဇူးတင်ပါတယ်ခင်ဗျာ Ramadan Bazaar Myanmar Page တွင် ဝါဖြေပွဲရောင်းချလိုပါက ဒီဖုန်းနံပါတ် 09764328010 ကိုဆက်သွယ်ပေးပါခင်ဗျာ။"
 
     def handle_text_response(self):
@@ -189,6 +189,12 @@ class TextInputResponseUseCase:
                 "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
                 "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
                 "payload": self.FONT_SELECTION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "payload": self.HELP
             }
 
         ]
@@ -241,6 +247,7 @@ class LocationBaseShopSelectionUseCase:
         self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
+        self.HELP = "HELP_PAYLOAD"
         self.EXIT_SHOPS = "EXIT_SHOPS"
 
         self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
@@ -316,6 +323,12 @@ class LocationBaseShopSelectionUseCase:
                 "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
                 "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
                 "payload": self.FONT_SELECTION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "payload": self.HELP
             }
 
         ]
@@ -379,7 +392,7 @@ class FontSelectionUseCase:
         self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.NO_LOCATION_PAYLOAD = "NO_LOCATION_PAYLOAD"
-
+        self.HELP="HELP_PAYLOAD"
         self.quick_reply_payload = ''
         self.EVENT_FONT_CHANGE = "အောက်မှာ မြင်ရတဲ့ စာသားလေးကိုနှိပ်ပြီး Font ရွေးပေးပါခင်ဗျာ။"
         self.after_font_selection = "ကောင်းပါပြီ ဒါဆို အောက်က menuလေးတွေကို နှိပ်ပြီးကြည့်လို့ရပါပြီခင်ဗျာ။"
@@ -447,6 +460,12 @@ class FontSelectionUseCase:
                 "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
                 "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
                 "payload": self.FONT_SELECTION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "payload": self.HELP
             }
 
         ]
@@ -487,10 +506,12 @@ class ShopSelectionUseCase:
         self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
+        self.HELP="HELP_PAYLOAD"
         self.EXIT_SHOPS = "EXIT_SHOPS"
         self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
         self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း "
         self.about_us_response = "(Assalamualaikum) \n COVID-19 ကူးစက်မှုများ ကြောင့်နှစ်စဥ် ရမဇန်ဥပုဒ် ကာလတွင်း ဝါဖြေပွဲ ရောင်းချသူမိတ်ဆွေများ ရောင်းချရန် အတွက် သက်ဆိုင်ရာမှကန့်သတ်မှုများရှိလာနိုင်တဲ့အတွက် ကျတော်တို့ Ramadan Bazaar Myanmar Page ပာာ ရောင်းသူ ဝယ်သူ ချိတ်ဆက် နိုင် အောင် လုပ်ပေးနိုင်သည့်နေရာ တစ်ခုဖြစ်ပါသည်။ ကျတော်တို့တတ်ကျွမ်းသော နည်းပညာကို ဓမ္မဒါန အဖြစ် အစ္စလာမ်ဘာသာဝင်များ အဆင်ပြေစေရန်ကူညီဆောင်ရွက်ခြင်းသာဖြစ်ပါတယ်ဗျာ။"
+        self.help_response = "RAMADAN Bazaar Myanmar ChatBot ကို သုံးတဲ့ နေရာမှာကြုံတွေ့ရလောက်မယ့် အခက်အခဲလေး တွေနဲ့  ဖြေ ရှင်း ချက်များ \n - location Access မရခြင်း \n -  အနီးနားမှာရှာမယ် လို့ နှိပ်လိုက်လို့ Messenger မှာ ကိုယ်နေတဲ့ နေရာနားကမပြဘဲ တခြား နေရာ ဆိုင်တွေပြနေမယ်ဆိုရင် iOS ဆိုရင် Messenger ကို Uninstall / Re- Install လုပ်ပါ Android ဆိုရင်  Messenger ကို Uninstall သို့မဟုတ် Settings -> Apps(သို့မဟုတ်)Application Manager -> messenger app -> Clear Data ကိုရွေး ကိုဖျက်ပြီး ပြန်စမ်းကြည့်လို့ရပါတယ်"
 
     def handle_shops_quick_reply(self, payload):
         if payload == self.BROWSE_SHOPS:
@@ -530,6 +551,10 @@ class ShopSelectionUseCase:
             self.bot.send_quick_reply(self.sender_id, self.about_us_response,
                                       self._after_font_selection_payload(self.is_zawgyi),
                                       self.is_zawgyi)
+        if payload == self.HELP:
+            self.bot.send_quick_reply(self.sender_id, self.help_response,
+                                      self._after_font_selection_payload(self.is_zawgyi),
+                                      self.is_zawgyi)
         if payload == self.EXIT_SHOPS:
             self.current_user["current_shop_page"] = 1
             self.user.update(self.current_user, "sender_id = {0}".format(self.sender_id))
@@ -563,6 +588,12 @@ class ShopSelectionUseCase:
                 "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
                 "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
                 "payload": self.FONT_SELECTION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "payload": self.HELP
             }
 
         ]
@@ -593,6 +624,12 @@ class ShopSelectionUseCase:
                 "title": Rabbit.uni2zg("ဖောင့်ပြန်ရွေးရန်") if is_zawgyi else "ဖောင့်ပြန်ရွေးရန်",
                 "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_unicode.png",
                 "payload": self.FONT_SELECTION_PAYLOAD
+            },
+            {
+                "content_type": "text",
+                "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
+                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "payload": self.HELP
             }
 
         ]
