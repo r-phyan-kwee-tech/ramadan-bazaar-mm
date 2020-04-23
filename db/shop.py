@@ -48,29 +48,17 @@ class Shop:
             offset_query = " ORDER BY S.id ASC LIMIT {0} OFFSET {1} ".format(str(limit), str(offset))
             select_query += offset_query
 
-            if not os.getenv("ENV") == 'production':
-                results = cursor.execute(select_query)
-            else:
-                cursor.execute(select_query)
-                results = cursor.fetchall()
+            cursor.execute(select_query)
+            results = cursor.fetchall()
             field_names = [i[0] for i in cursor.description]
             shops = []
-            if not os.getenv("ENV") == 'production':
-                for row in results:
-                    fields = field_names
-                    shop = {
-                        field: row[field] for field in fields
-                    }
-                    shops.append(shop)
-                return shops
-            else:
-                for row in results:
-                    fields = field_names
-                    shop = {
-                        field: str(row[x]) for x, field in enumerate(fields)
-                    }
-                    shops.append(shop)
-                return shops
+            for row in results:
+                fields = field_names
+                shop = {
+                    field: str(row[x]) for x, field in enumerate(fields)
+                }
+                shops.append(shop)
+            return shops
         except Exception as e:
             print("Shop Select", e)
             cursor.close()
@@ -92,30 +80,19 @@ class Shop:
             offset_query = " LIMIT {0} OFFSET {1} ".format(limit, offset)
             select_query += offset_query
 
-            if not os.getenv("ENV") == 'production':
-                results = cursor.execute(select_query)
-            else:
-                cursor.execute(select_query)
-                results = cursor.fetchall()
+            cursor.execute(select_query)
+            results = cursor.fetchall()
             field_names = [i[0] for i in cursor.description]
             shops = []
-            if not os.getenv("ENV") == 'production':
-                for row in results:
-                    fields = field_names
-                    shop = {
-                        field: row[field] for field in fields
-                    }
-                    shops.append(shop)
-                return shops
-            else:
-                for row in results:
-                    fields = field_names
-                    shop = {
-                        field: str(row[x]) for x, field in enumerate(fields)
-                    }
-                    shops.append(shop)
-                return shops
+            for row in results:
+                fields = field_names
+                shop = {
+                    field: str(row[x]) for x, field in enumerate(fields)
+                }
+                shops.append(shop)
+            return shops
+
         except Exception as e:
             print(e)
-
+            cursor.close()
             return []

@@ -48,11 +48,21 @@ class MessengerUseCase:
                         self.handle_quick_replies()
                     if message["message"].get("attachments"):
                         if message["message"].get("attachments")[0].get("type") == 'location':
-                            self.latitude = message["message"]["attachments"][0]["payload"]["coordinates"][
-                                "lat"]
-                            self.longitude = message["message"]["attachments"][0]["payload"]["coordinates"][
-                                "long"]
-                            self.handle_attachment()
+                            try:
+                                self.latitude = message["message"].get("attachments")[0].get("payload").get(
+                                    "coordinates").get(
+                                    "lat")
+                                self.longitude = message["message"].get("attachments")[0].get("payload").get(
+                                    "coordinates").get(
+                                    "long")
+                                self.handle_attachment()
+                            except Exception as e :
+
+                                self.latitude = 0
+                                self.longitude = 0
+                                self.handle_attachment()
+
+
                         else:
                             response_sent_text = "Oops I think I am not good enough to handle this request thousand apologies."
                             bot.send_message(self.recipient_id, response_sent_text)
@@ -156,7 +166,7 @@ class TextInputResponseUseCase:
         self.SELECT_LOCATION_PAYLOAD = "SELECT_LOCATION_PAYLOAD"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
-        self.HELP="HELP_PAYLOAD"
+        self.HELP = "HELP_PAYLOAD"
         self.after_text_input_received_text = "ဆက်သွယ်ပေးတာကျေးဇူးတင်ပါတယ်ခင်ဗျာ Ramadan Bazaar Myanmar Page တွင် ဝါဖြေပွဲရောင်းချလိုပါက ဒီဖုန်းနံပါတ် 09764328010 ကိုဆက်သွယ်ပေးပါခင်ဗျာ။"
 
     def handle_text_response(self):
@@ -392,7 +402,7 @@ class FontSelectionUseCase:
         self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.NO_LOCATION_PAYLOAD = "NO_LOCATION_PAYLOAD"
-        self.HELP="HELP_PAYLOAD"
+        self.HELP = "HELP_PAYLOAD"
         self.quick_reply_payload = ''
         self.EVENT_FONT_CHANGE = "အောက်မှာ မြင်ရတဲ့ စာသားလေးကိုနှိပ်ပြီး Font ရွေးပေးပါခင်ဗျာ။"
         self.after_font_selection = "ကောင်းပါပြီ ဒါဆို အောက်က menuလေးတွေကို နှိပ်ပြီးကြည့်လို့ရပါပြီခင်ဗျာ။"
@@ -506,7 +516,7 @@ class ShopSelectionUseCase:
         self.AVAILABLE_MENUS = "AVAILABLE_MENUS"
         self.ABOUT_US_PAYLOAD = "ABOUT_US_PAYLOAD"
         self.FONT_SELECTION_PAYLOAD = "FONT_SELECTION_PAYLOAD"
-        self.HELP="HELP_PAYLOAD"
+        self.HELP = "HELP_PAYLOAD"
         self.EXIT_SHOPS = "EXIT_SHOPS"
         self.after_exit_shops = "ကောင်းပါပြီ ဒါဆို အောက်က သင်ကြည့်လိုတဲ့ လုပ်ဆောင်လိုတဲ့ ခလုတ်လေးတွေကိုနှိပ်လို့ရပါပြီခင်ဗျာ။ "
         self.browse_shops_end = "ဆိုင်တွေအားလုံးကြည့်လိုတော့ကုန်သွားပြီ ဒါဆို နောက်တခေါက်ပြန်ကြည့်ဖို့အောက်က ခလုတ်လေးတွေကိုနှိပ်ပြီးရှာကြည့်ပါအုန်း "
@@ -641,7 +651,9 @@ class ShopSelectionUseCase:
             "title": Rabbit.uni2zg(str(shop.get("name_uni")) + str(shop.get("description"))) if is_zawgyi else str(
                 shop.get("name_uni")) + str(shop.get("description")),
             "image_url": "http://source.unsplash.com/NEqPK_bF3HQ",
-            "subtitle": Rabbit.uni2zg(str(shop.get("region_name"))+"တွင်ရှိပါသည်။ "+str(shop.get("description"))) if is_zawgyi else shop.get("region_name")+"တွင်ရှိပါသည်။ "+shop.get("description"),
+            "subtitle": Rabbit.uni2zg(str(shop.get("region_name")) + "တွင်ရှိပါသည်။ " + str(
+                shop.get("description"))) if is_zawgyi else shop.get("region_name") + "တွင်ရှိပါသည်။ " + shop.get(
+                "description"),
             "default_action": {
                 "type": "web_url",
                 "url": "https://ramadan-bazzar-web.web.app/shop/{0}/{1}".format(shop.get("id"), is_zawgyi),
