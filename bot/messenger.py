@@ -178,43 +178,58 @@ class MessengerBot:
         headers = {
             "Content-Type": "application/json"
         }
-        data = json.dumps({
-            "recipient": {
-                "id": recipient_id
-            },
-            "message": {
-                "attachment": {
-                    "type": "template",
-                    "payload": {
-                        "text": Rabbit.uni2zg(message) if is_zawgyi else message,
-                        "template_type": "button",
-                        "buttons": [
-                            {
-                                "type": "web_url",
-                                "title": Rabbit.uni2zg(
-                                    "လက်ရှိနေရာ ပို့ပေးမယ်") if is_zawgyi else "လက်ရှိနေရာ ပို့ပေးမယ်",
-                                "url": "http://msglocation.github.io/?verification_token=" + str(
-                                    jwt.encode(
-                                        {"recepient_id": recipient_id, "post_back_url": os.getenv("MSG_POST_BACK_URL"),
-                                         "page_id": page_id, "page_recipient_id": page_recipient_id,
-                                         "is_zawgyi": is_zawgyi},
-                                        os.getenv("JWT_KEY"),
-                                        algorithm='HS256')).replace("b'", "").replace("'",
-                                                                                      "")
+        try:
+            encoded_result = jwt.encode(
+                {"recepient_id": recipient_id, "post_back_url": os.getenv("MSG_POST_BACK_URL"),
+                 "page_id": page_id, "page_recipient_id": page_recipient_id,
+                 "is_zawgyi": is_zawgyi},
+                os.getenv("JWT_KEY"),
+                algorithm='HS256')
 
-                            },
-                            {
-                                "type": "postback",
-                                "title": Rabbit.uni2zg("မပို့တော့ဘူး") if is_zawgyi else "မပို့တော့ဘူး",
-                                "payload": "NO_LOCATION_PAYLOAD",
-                            }
-                        ]
+            data = json.dumps({
+                "recipient": {
+                    "id": recipient_id
+                },
+                "message": {
+                    "attachment": {
+                        "type": "template",
+                        "payload": {
+                            "text": Rabbit.uni2zg(message) if is_zawgyi else message,
+                            "template_type": "button",
+                            "buttons": [
+                                {
+                                    "type": "web_url",
+                                    "title": Rabbit.uni2zg(
+                                        "လက်ရှိနေရာ ပို့ပေးမယ်") if is_zawgyi else "လက်ရှိနေရာ ပို့ပေးမယ်",
+                                    "url": "http://msglocation.github.io/?verification_token=" + str(
+                                        encoded_result).replace("b'", "").replace("'", "")
+
+                                },
+                                {
+                                    "type": "postback",
+                                    "title": Rabbit.uni2zg("မပို့တော့ဘူး") if is_zawgyi else "မပို့တော့ဘူး",
+                                    "payload": "NO_LOCATION_PAYLOAD",
+                                }
+                            ]
+                        }
                     }
                 }
-            }
 
-        })
+            })
 
-        url = url_concat("https://graph.facebook.com/v6.0/me/messages", params)
-        httpclient.AsyncHTTPClient().fetch(url, method="POST",
-                                           headers=headers, body=data)
+            url = url_concat("https://graph.facebook.com/v6.0/me/messages", params)
+            httpclient.AsyncHTTPClient().fetch(url, method="POST",
+                                               headers=headers, body=data)
+        except Exception as e:
+            data = json.dumps({
+                "recipient": {
+                    "id": recipient_id
+                },
+                "message": {
+                    "text": Rabbit.uni2zg(
+                        "မိတ်ဆွေရဲ့ အနီးမှာ ရှိတဲ့ ဆိုင်လေးတွေကို ရှာမတွေ့ လို့ ပြန် ပြီး ရှာပေးပါခင်ဗျာ") if is_zawgyi else "မိတ်ဆွေရဲ့ အနီးမှာ ရှိတဲ့ ဆိုင်လေးတွေကို ရှာမတွေ့ လို့ ပြန် ပြီး ရှာပေးပါခင်ဗျာ",
+                }
+            })
+            url = url_concat("https://graph.facebook.com/v6.0/me/messages", params)
+            httpclient.AsyncHTTPClient().fetch(url, method="POST",
+                                               headers=headers, body=data)
