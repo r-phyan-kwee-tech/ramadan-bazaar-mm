@@ -1,22 +1,27 @@
-import os
-
-
 class Shop:
     def __init__(self, db):
         super().__init__()
 
         # Initialising db connection
         self.db = db
-        self.cols=("name","description","menu_id","lat","lon","address","phone_number_1","phone_number_2","phone_number_3","township_id","region_id","delivery_include")
+        self.cols = (
+        "name", "description", "menu_id", "lat", "lon", "address", "phone_number_1", "phone_number_2", "phone_number_3",
+        "township_id", "region_id", "delivery_include")
 
     def insert(self, entity):
         cursor = self.db.cursor()
-        cursor.execute(
-            "INSERT INTO public.shop (name,description,menu_id,lat,lon,address,phone_number_1,phone_number_2,phone_number_3,township_id,region_id,delivery_include) "
-            + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-            (entity.get(col) for col in self.cols)
-        )
-        self.db.commit()
+        try:
+
+            cursor.execute(
+                "INSERT INTO public.shop (name,description,menu_id,lat,lon,address,phone_number_1,phone_number_2,phone_number_3,township_id,region_id,delivery_include) "
+                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (entity.get(col) for col in self.cols)
+            )
+            self.db.commit()
+        except Exception as e:
+            cursor.close()
+            self.db.rollback()
+            print(e)
 
     def update(self, entity, condition):
         cursor = self.db.cursor()
@@ -33,6 +38,7 @@ class Shop:
 
         except Exception as e:
             cursor.close()
+            self.db.rollback()
             print(e)
 
     def select(self, condition, page_num, page_size):
@@ -62,7 +68,7 @@ class Shop:
         except Exception as e:
             print("Shop Select", e)
             cursor.close()
-
+            self.db.rollback()
             return []
 
     def query_select(self, query, condition, ordered_by, page_num, page_size):
@@ -95,4 +101,5 @@ class Shop:
         except Exception as e:
             print(e)
             cursor.close()
+            self.db.rollback()
             return []

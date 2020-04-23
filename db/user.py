@@ -18,6 +18,7 @@ class User:
             self.db.commit()
         except Exception as e:
             cursor.close()
+            self.db.rollback()
             print(e)
 
     def update(self, entity, condition):
@@ -41,6 +42,7 @@ class User:
 
         except Exception as e:
             cursor.close()
+            self.db.rollback()
             print("USER Update", e)
 
     def select(self, condition):
@@ -65,5 +67,6 @@ class User:
 
         except Exception as e:
             cursor.close()
+            self.db.rollback()
             print(e)
             return []
