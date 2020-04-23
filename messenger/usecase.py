@@ -193,7 +193,7 @@ class TextInputResponseUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_bouy_help.png",
                 "payload": self.HELP
             }
 
@@ -327,7 +327,7 @@ class LocationBaseShopSelectionUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_bouy_help.png",
                 "payload": self.HELP
             }
 
@@ -464,7 +464,7 @@ class FontSelectionUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_bouy_help.png",
                 "payload": self.HELP
             }
 
@@ -592,7 +592,7 @@ class ShopSelectionUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_bouy_help.png",
                 "payload": self.HELP
             }
 
@@ -628,7 +628,7 @@ class ShopSelectionUseCase:
             {
                 "content_type": "text",
                 "title": Rabbit.uni2zg("အကူအညီယူမည်။") if is_zawgyi else "အကူအညီယူမည်။",
-                "image_url": "https://raw.githubusercontent.com/winhtaikaung/mm-exchange-rate-check-bot/master/icon_image/ic_bouy_help.png",
+                "image_url": "https://raw.githubusercontent.com/r-phyan-kwee-tech/ramadan-bazaar-mm/master/icons/ic_bouy_help.png",
                 "payload": self.HELP
             }
 
